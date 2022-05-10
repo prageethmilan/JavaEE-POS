@@ -306,13 +306,10 @@ $("#txtSearchCId").keyup(function (event) {
 // Add Customer
 
 function addCustomer() {
-    let customerId = $("#txtCustomerId").val();
-    let customerName = $("#txtCustomerName").val();
-    let customerAddress = $("#txtCustomerAddress").val();
-    let customerSalary = $("#txtCustomerSalary").val();
+    var data = $("#registerCustomerForm").serialize();
+    $.ajax({
 
-    var customer = new CustomerDTO(customerId, customerName, customerAddress, customerSalary);
-    customerDB.push(customer);
+    });
 }
 
 // Search Customer
