@@ -308,7 +308,21 @@ $("#txtSearchCId").keyup(function (event) {
 function addCustomer() {
     var data = $("#registerCustomerForm").serialize();
     $.ajax({
-
+        url:"customer",
+        method:"POST",
+        data:data,
+        success:function (res){
+            if (res.status==200){
+                console.log(res.data);
+            }else{
+                alert(res.data);
+            }
+        },
+        error: function (ob, textStatus, error) {
+            console.log(ob);
+            console.log(textStatus);
+            console.log(error);
+        }
     });
 }
 
@@ -325,7 +339,7 @@ function searchCustomer(searchId) {
 // Update Customer
 
 function updateCustomer() {
-    let updateCustId = $("#txtSearchCustomerId").val();
+    /*let updateCustId = $("#txtSearchCustomerId").val();
     let updateCustName = $("#txtCName").val();
     let updateCustAddress = $("#txtCaddress").val();
     let updateCustSalary = $("#txtCsalary").val();
@@ -340,7 +354,35 @@ function updateCustomer() {
             clearUpdateCustomerFields();
             $("#btnUpdateCust").prop('disabled', true);
         }
+    }*/
+    var cusOb = {
+        id: $("#txtSearchCustomerId").val(),
+        name: $("#txtCName").val(),
+        address: $("#txtCaddress").val(),
+        salary: $("#txtCsalary").val()
     }
+
+        $.ajax({
+            url: "customer",
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(cusOb),
+            success: function (res) {
+                if (res.status == 200) {
+                    alert(res.message);
+                    loadAllCustomers();
+                } else if (res.status == 400) {
+                    alert(res.message);
+                } else {
+                    alert(res.data);
+                }
+            },
+            error: function (ob, errorStus) {
+                console.log(ob);
+            }
+        });
+    clearUpdateCustomerFields();
+    $("#btnUpdateCust").prop('disabled', true);
 }
 
 // Delete Customer
@@ -360,10 +402,16 @@ function deleteCustomer() {
 
 function loadAllCustomers() {
     $("#customerTable").empty();
-    for (var i = 0; i < customerDB.length; i++) {
-        let tableRow = `<tr><td>${customerDB[i].getId()}</td><td>${customerDB[i].getName()}</td><td>${customerDB[i].getAddress()}</td><td>${customerDB[i].getSalary()}</td></tr>`;
-        $("#customerTable").append(tableRow);
-    }
+    $.ajax({
+        url: "customer?option=GETALL",
+        method: "GET",
+        success: function (resp) {
+            for (const customer of resp.data) {
+                let row = `<tr><td>${customer.id}</td><td>${customer.name}</td><td>${customer.address}</td><td>${customer.salary}</td></tr>`;
+                $("#customerTable").append(row);
+            }
+        }
+    });
 }
 
 /*End Of CRUD Operations*/
