@@ -24,11 +24,12 @@ $("#placeOrderForm").click(function () {
     $("#customerPage").css('display', 'none');
     $("#itemPage").css('display', 'none');
     $("#placeOrderPage").css('display', 'block');
-    generateOrderId();
+    /*generateOrderId();
     setCustomerIdsToComboBox();
-    setItemCodesToComboBox();
+    setItemCodesToComboBox();*/
 });
 
+/*
 function generateOrderId() {
     if (orderDB.length == 0) {
         $("#txtOrderId").val("O-0001");
@@ -62,4 +63,4 @@ function setItemCodesToComboBox() {
     for (var i = 0; i < itemDB.length; i++) {
         $("#cmbitemcode").append(new Option(itemDB[i].getCode(),i));
     }
-}
+}*/
