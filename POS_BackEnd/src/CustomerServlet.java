@@ -1,6 +1,4 @@
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -69,10 +67,10 @@ public class CustomerServlet extends HttpServlet {
                         String address = searchSet.getString(3);
                         double salary = searchSet.getDouble(4);
 
-                        searchCustomer.add("id",id);
-                        searchCustomer.add("name",name);
-                        searchCustomer.add("address",address);
-                        searchCustomer.add("salary",salary);
+                        searchCustomer.add("id", id);
+                        searchCustomer.add("name", name);
+                        searchCustomer.add("address", address);
+                        searchCustomer.add("salary", salary);
 
                     }
 
@@ -140,11 +138,66 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject jsonObject = reader.readObject();
+        String id = jsonObject.getString("id");
+        String name = jsonObject.getString("name");
+        String address = jsonObject.getString("address");
+        double salary = Double.parseDouble(jsonObject.getString("salary"));
+
+        PrintWriter writer = resp.getWriter();
+
+        resp.setContentType("application/json");
+
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
+            PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?,address=?,salary=? WHERE id=?");
+            pstm.setObject(1,name);
+            pstm.setObject(2,address);
+            pstm.setObject(3,salary);
+            pstm.setObject(4,id);
+
+            if (pstm.executeUpdate()>0) {
+                JsonObjectBuilder response = Json.createObjectBuilder();
+                response.add("status", 200);
+                response.add("message", "Successfully Updated");
+                response.add("data", "");
+                writer.print(response.build());
+            }else{
+                JsonObjectBuilder response = Json.createObjectBuilder();
+                response.add("status", 400);
+                response.add("message", "Update Failed");
+                response.add("data", "");
+                writer.print(response.build());
+            }
+
+        } catch (ClassNotFoundException e) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 500);
+            response.add("message", "Update Failed");
+            response.add("data", e.getLocalizedMessage());
+            writer.print(response.build());
+        } catch (SQLException throwables) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 500);
+            response.add("message", "Update Failed");
+            response.add("data", throwables.getLocalizedMessage());
+            writer.print(response.build());
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doDelete(req, resp);
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Methods","PUT");
+        resp.addHeader("Access-Control-Allow-Headers","content-type");
     }
 }
