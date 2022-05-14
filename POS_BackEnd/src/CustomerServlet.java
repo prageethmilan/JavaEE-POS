@@ -67,6 +67,7 @@ public class CustomerServlet extends HttpServlet {
                         String address = searchSet.getString(3);
                         double salary = searchSet.getDouble(4);
 
+                        searchCustomer.add("status",200);
                         searchCustomer.add("id", id);
                         searchCustomer.add("name", name);
                         searchCustomer.add("address", address);
@@ -155,18 +156,18 @@ public class CustomerServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
             PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?,address=?,salary=? WHERE id=?");
-            pstm.setObject(1,name);
-            pstm.setObject(2,address);
-            pstm.setObject(3,salary);
-            pstm.setObject(4,id);
+            pstm.setObject(1, name);
+            pstm.setObject(2, address);
+            pstm.setObject(3, salary);
+            pstm.setObject(4, id);
 
-            if (pstm.executeUpdate()>0) {
+            if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 200);
                 response.add("message", "Successfully Updated");
                 response.add("data", "");
                 writer.print(response.build());
-            }else{
+            } else {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 400);
                 response.add("message", "Update Failed");
@@ -191,13 +192,53 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        String cusID = req.getParameter("CusID");
+        PrintWriter writer = resp.getWriter();
+        resp.setContentType("application/json");
+
+        resp.addHeader("Access-Control-Allow-Origin","*");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
+
+            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
+            pstm.setObject(1,cusID);
+
+            if (pstm.executeUpdate()>0) {
+                JsonObjectBuilder builder = Json.createObjectBuilder();
+                builder.add("status",200);
+                builder.add("data","");
+                builder.add("message","Successfully deleted");
+                writer.print(builder.build());
+            }else{
+                JsonObjectBuilder builder = Json.createObjectBuilder();
+                builder.add("status",400);
+                builder.add("data","");
+                builder.add("message","Delete Failed");
+                writer.print(builder.build());
+            }
+        } catch (ClassNotFoundException e) {
+            resp.setStatus(200);
+            JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+            objectBuilder.add("status", 500);
+            objectBuilder.add("message", "Error");
+            objectBuilder.add("data", e.getLocalizedMessage());
+            writer.print(objectBuilder.build());
+        } catch (SQLException throwables) {
+            resp.setStatus(200);
+            JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+            objectBuilder.add("status", 500);
+            objectBuilder.add("message", "Error");
+            objectBuilder.add("data", throwables.getLocalizedMessage());
+            writer.print(objectBuilder.build());
+        }
     }
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.addHeader("Access-Control-Allow-Methods","PUT");
-        resp.addHeader("Access-Control-Allow-Headers","content-type");
+        resp.addHeader("Access-Control-Allow-Methods", "DELETE, PUT");
+        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }

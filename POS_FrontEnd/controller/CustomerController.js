@@ -235,42 +235,20 @@ $("#txtCsalary").keyup(function (event) {
 
 // Delete Customer Form Validations
 
-/*$("#txtSearchCId").keyup(function (event) {
+$("#txtSearchCId").keyup(function (event) {
     searchCustId = $("#txtSearchCId").val();
     if (regCusId.test(searchCustId)) {
         $("#txtSearchCId").css('border', '2px solid green');
         $("#searchCustomerIdError").text("");
         if (event.key == "Enter") {
-            var foundOrNot = false;
-            let foundCustomer = searchCustomer(searchCustId);
-            if (foundCustomer) {
-                $("#txtdcName").val(foundCustomer.getName());
-                $("#txtdcAddress").val(foundCustomer.getAddress());
-                $("#txtdcSalary").val(foundCustomer.getSalary());
-                $("#btnDeleteCustomer").prop('disabled', false);
-                foundOrNot = true;
-                $("#btnDeleteCustomer").focus();
-            }
-            if (foundOrNot == false) {
-                $("#txtdcName").val("");
-                $("#txtdcAddress").val("");
-                $("#txtdcSalary").val("");
-                $("#btnDeleteCustomer").prop('disabled', true);
-                swal({
-                    title: "Error!",
-                    text: "Customer Not Found.",
-                    icon: "warning",
-                    button: "Close",
-                    timer: 2000
-                });
-            }
+            searchDeleteCustomer(searchCustId);
         }
     } else {
         $("#txtSearchCId").css('border', '2px solid red');
         $("#searchCustomerIdError").text("Cust ID is a required field.Pattern : C00-0001");
         $("#btnDeleteCustomer").prop('disabled', true);
     }
-});*/
+});
 
 /*End Of Customer Form Text Field Validations*/
 
@@ -301,7 +279,7 @@ function addCustomer() {
     });
 }
 
-// Search Customer
+// Search Update Customer
 
 function searchUpdateCustomer(searchId) {
     /*for (var i = 0; i < customerDB.length; i++) {
@@ -309,58 +287,72 @@ function searchUpdateCustomer(searchId) {
             return customerDB[i];
         }
     }*/
-    var customer = new CustomerDTO();
     $.ajax({
         url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
         method: "GET",
         success: function (res) {
-            $("#txtCName").val(res.name);
-            $("#txtCaddress").val(res.address);
-            $("#txtCsalary").val(res.salary);
-            $("#btnUpdateCust").prop('disabled', false);
-            $("#txtCName").css('border', '2px solid green');
-            $("#txtCaddress").css('border', '2px solid green');
-            $("#txtCsalary").css('border', '2px solid green');
-            $("#txtCName").focus();
+            if (res.status == 200) {
+                $("#txtCName").val(res.name);
+                $("#txtCaddress").val(res.address);
+                $("#txtCsalary").val(res.salary);
+                $("#btnUpdateCust").prop('disabled', false);
+                $("#txtCName").css('border', '2px solid green');
+                $("#txtCaddress").css('border', '2px solid green');
+                $("#txtCsalary").css('border', '2px solid green');
+                $("#txtCName").focus();
+            } else {
+                $("#txtCName").val("");
+                $("#txtCaddress").val("");
+                $("#txtCsalary").val("");
+                $("#btnUpdateCust").prop('disabled', true);
+                $("#txtCName").css('border', '1px solid #ced4da');
+                $("#txtCaddress").css('border', '1px solid #ced4da');
+                $("#txtCsalary").css('border', '1px solid #ced4da');
+                swal({
+                    title: "Error!",
+                    text: "Customer Not Found.",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
         },
-        error: function () {
-            $("#txtCName").val("");
-            $("#txtCaddress").val("");
-            $("#txtCsalary").val("");
-            $("#btnUpdateCust").prop('disabled', true);
-            $("#txtCName").css('border', '1px solid #ced4da');
-            $("#txtCaddress").css('border', '1px solid #ced4da');
-            $("#txtCsalary").css('border', '1px solid #ced4da');
-            swal({
-                title: "Error!",
-                text: "Customer Not Found.",
-                icon: "warning",
-                button: "Close",
-                timer: 2000
-            });
-        }
+    });
+}
+
+// Search Delete Customer
+
+function searchDeleteCustomer(searchId) {
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#txtdcName").val(res.name);
+                $("#txtdcAddress").val(res.address);
+                $("#txtdcSalary").val(res.salary);
+                $("#btnDeleteCustomer").prop('disabled', false);
+                $("#btnDeleteCustomer").focus();
+            } else {
+                $("#txtdcName").val("");
+                $("#txtdcAddress").val("");
+                $("#txtdcSalary").val("");
+                $("#btnDeleteCustomer").prop('disabled', true);
+                swal({
+                    title: "Error!",
+                    text: "Customer Not Found.",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
+        },
     });
 }
 
 // Update Customer
 
 function updateCustomer() {
-    /*let updateCustId = $("#txtSearchCustomerId").val();
-    let updateCustName = $("#txtCName").val();
-    let updateCustAddress = $("#txtCaddress").val();
-    let updateCustSalary = $("#txtCsalary").val();
-
-    for (var i = 0; i < customerDB.length; i++) {
-        if (customerDB[i].getId() == updateCustId) {
-            customerDB[i].setId(updateCustId);
-            customerDB[i].setName(updateCustName);
-            customerDB[i].setAddress(updateCustAddress);
-            customerDB[i].setSalary(updateCustSalary);
-
-            clearUpdateCustomerFields();
-            $("#btnUpdateCust").prop('disabled', true);
-        }
-    }*/
     var cusOb = {
         id: $("#txtSearchCustomerId").val(),
         name: $("#txtCName").val(),
@@ -393,16 +385,31 @@ function updateCustomer() {
 
 // Delete Customer
 
-/*function deleteCustomer() {
-    let searchCustomerId = $("#txtSearchCId").val();
-    for (var i = 0; i < customerDB.length; i++) {
+function deleteCustomer() {
+    let cusId = $("#txtSearchCId").val();
+    /*for (var i = 0; i < customerDB.length; i++) {
         if (customerDB[i].getId() == searchCustomerId) {
             customerDB.splice(i, 1);
             clearDeleteCustomerFields();
             $("#btnDeleteCustomer").prop('disabled', true);
         }
-    }
-}*/
+    }*/
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?CusID=" + cusId,
+        method: "DELETE",
+        success: function (res) {
+            console.log(res);
+            if (res.status == 200) {
+                clearDeleteCustomerFields();
+                loadAllCustomers();
+            } else if (res.status == 400) {
+                alert(res.data);
+            } else {
+                alert(res.data);
+            }
+        }
+    })
+}
 
 // Load all customers
 
@@ -477,10 +484,10 @@ function loadAllCustomers() {
 /*Controller Functions*/
 // Add Customer Form
 
-/*$("#registerCustomer").on('shown.bs.modal', function () {
+$("#registerCustomer").on('shown.bs.modal', function () {
     $(this).find("#txtCustomerId").focus();
-    generateCustomerId();
-});*/
+    // generateCustomerId();
+});
 
 $("#btnRegisterCustomer").prop('disabled', true);
 
@@ -560,7 +567,7 @@ function clearUpdateCustomerFields() {
 
 // Delete Customer Form
 
-/*$("#btnDeleteCustomer").prop('disabled', true);
+$("#btnDeleteCustomer").prop('disabled', true);
 
 $("#deleteCustomer").on('shown.bs.modal', function () {
     $(this).find("#txtSearchCId").focus();
@@ -570,7 +577,6 @@ $("#btnDeleteCustomer").click(function () {
     let res = confirm("Do you want to delete this customer?");
     if (res) {
         deleteCustomer();
-        loadAllCustomers();
     }
 });
 
@@ -588,7 +594,7 @@ function clearDeleteCustomerFields() {
     $("#txtdcSalary").val("");
 
     $("#searchCustomerIdError").text("");
-}*/
+}
 
 //Other
 
