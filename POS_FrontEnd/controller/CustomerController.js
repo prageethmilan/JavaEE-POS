@@ -454,8 +454,8 @@ function loadAllCustomers() {
 
 // Search Customer By Table
 
-/*function searchCustomerByTable(searchId) {
-    var customer = searchCustomer(searchId);
+function searchCustomerByTable(searchId) {
+    /*var customer = searchCustomer(searchId);
     let foundOrNot = false;
     if (customer) {
         var id = customer.getId();
@@ -470,16 +470,29 @@ function loadAllCustomers() {
         foundOrNot = true;
     }
     if (foundOrNot == false) {
-        loadAllCustomers();
-        swal({
-            title: "Error!",
-            text: "Customer Not Found.",
-            icon: "warning",
-            button: "Close",
-            timer: 2000
-        });
-    }
-}*/
+
+    }*/
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#customerTable").empty();
+                let tableRow = `<tr><td>${res.id}</td><td>${res.name}</td><td>${res.address}</td><td>${res.salary}</td></tr>`;
+                $("#customerTable").append(tableRow);
+            } else {
+                loadAllCustomers();
+                swal({
+                    title: "Error!",
+                    text: "Customer Not Found.",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
+        },
+    });
+}
 
 /*Controller Functions*/
 // Add Customer Form
@@ -598,7 +611,6 @@ function clearDeleteCustomerFields() {
 
 //Other
 
-/*
 $("#searchCustomerForm").submit(function (e) {
     e.preventDefault();
 });
@@ -624,4 +636,4 @@ $("#btnClearSearchField").click(function () {
     $("#txtSCustId").val("");
     $("#txtSCustId").css('border', '1px solid #ced4da');
     loadAllCustomers();
-});*/
+});
