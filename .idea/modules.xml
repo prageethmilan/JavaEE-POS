@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SPA_Using_Servlets.iml" filepath="$PROJECT_DIR$/SPA_Using_Servlets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/POS_BackEnd/POS_BackEnd.iml" filepath="$PROJECT_DIR$/POS_BackEnd/POS_BackEnd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/POS_FrontEnd/POS_FrontEnd.iml" filepath="$PROJECT_DIR$/POS_FrontEnd/POS_FrontEnd.iml" />
     </modules>
   </component>
 </project>
