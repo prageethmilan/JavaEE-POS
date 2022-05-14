@@ -27,6 +27,8 @@ public class CustomerServlet extends HttpServlet {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
             PrintWriter writer = resp.getWriter();
 
+            resp.addHeader("Access-Control-Allow-Origin","*");
+
             /*switch (option){
                 case "GETALL":*/
                     ResultSet rst = connection.prepareStatement("SELECT * FROM Customer").executeQuery();
@@ -70,6 +72,7 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin","*");
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

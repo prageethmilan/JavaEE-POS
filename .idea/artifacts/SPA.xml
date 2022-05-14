@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="spa">
-    <output-path>$PROJECT_DIR$/out/artifacts/spa</output-path>
-    <root id="archive" name="spa.war">
+  <artifact type="war" name="SPA">
+    <output-path>$PROJECT_DIR$/out/artifacts/SPA</output-path>
+    <root id="archive" name="SPA.war">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="POS_BackEnd" />

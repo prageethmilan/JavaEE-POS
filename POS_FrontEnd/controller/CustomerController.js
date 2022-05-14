@@ -308,7 +308,7 @@ $("#txtCsalary").keyup(function (event) {
 function addCustomer() {
     var data = $("#registerCustomerForm").serialize();
     $.ajax({
-        url:"customer",
+        url:"http://localhost:8080/spa/customer",
         method:"POST",
         data:data,
         success:function (res){
@@ -405,7 +405,7 @@ function addCustomer() {
 function loadAllCustomers() {
     $("#customerTable").empty();
     $.ajax({
-        url: "customer",
+        url: "http://localhost:8080/spa/customer",
         method: "GET",
         success: function (resp) {
             for (const customer of resp.data) {
