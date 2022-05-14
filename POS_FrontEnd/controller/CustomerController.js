@@ -137,7 +137,7 @@ function checkIfAddCustomerFormValid() {
 
 // Update Customer Form Validations
 
-/*$('#txtSearchCustomerId,#txtCName,#txtCaddress,#txtCsalary').on('keydown', function (event) {
+$('#txtSearchCustomerId,#txtCName,#txtCaddress,#txtCsalary').on('keydown', function (event) {
     if (event.key == "Tab") {
         event.preventDefault();
     }
@@ -149,35 +149,9 @@ $("#txtSearchCustomerId").keyup(function (event) {
         $("#txtSearchCustomerId").css('border', '2px solid green');
         $("#searchCustIdError").text("");
         if (event.key == "Enter") {
-            var foundOrNot = false;
-            let foundCustomer = searchCustomer(searchCustId);
-            if (foundCustomer) {
-                $("#txtCName").val(foundCustomer.getName());
-                $("#txtCaddress").val(foundCustomer.getAddress());
-                $("#txtCsalary").val(foundCustomer.getSalary());
-                $("#btnUpdateCust").prop('disabled', false);
-                foundOrNot = true;
-                $("#txtCName").css('border', '2px solid green');
-                $("#txtCaddress").css('border', '2px solid green');
-                $("#txtCsalary").css('border', '2px solid green');
-                $("#txtCName").focus();
-            }
-            if (foundOrNot == false) {
-                $("#txtCName").val("");
-                $("#txtCaddress").val("");
-                $("#txtCsalary").val("");
-                $("#btnUpdateCust").prop('disabled', true);
-                $("#txtCName").css('border', '1px solid #ced4da');
-                $("#txtCaddress").css('border', '1px solid #ced4da');
-                $("#txtCsalary").css('border', '1px solid #ced4da');
-                swal({
-                    title: "Error!",
-                    text: "Customer Not Found.",
-                    icon: "warning",
-                    button: "Close",
-                    timer: 2000
-                });
-            }
+
+            searchUpdateCustomer(searchCustId);
+
         }
     } else {
         $("#txtSearchCustomerId").css('border', '2px solid red');
@@ -249,7 +223,6 @@ $("#txtCsalary").keyup(function (event) {
             let res = confirm("Do you want to update this customer?");
             if (res) {
                 updateCustomer();
-                loadAllCustomers();
             }
         }
 
@@ -258,7 +231,7 @@ $("#txtCsalary").keyup(function (event) {
         $("#txtCsalary").css('border', '2px solid red');
         $("#cSalaryError").text("Customer Salary is a required field.Pattern : 1000.00 or 1000");
     }
-});*/
+});
 
 // Delete Customer Form Validations
 
@@ -308,15 +281,15 @@ $("#txtCsalary").keyup(function (event) {
 function addCustomer() {
     var data = $("#registerCustomerForm").serialize();
     $.ajax({
-        url:"http://localhost:8080/spa/customer",
-        method:"POST",
-        data:data,
-        success:function (res){
-            if (res.status==200){
+        url: "http://localhost:8080/spa/customer",
+        method: "POST",
+        data: data,
+        success: function (res) {
+            if (res.status == 200) {
                 console.log(res.data);
                 loadAllCustomers();
                 clearCustomerFields();
-            }else{
+            } else {
                 alert(res.data);
             }
         },
@@ -330,18 +303,49 @@ function addCustomer() {
 
 // Search Customer
 
-/*function searchCustomer(searchId) {
-    for (var i = 0; i < customerDB.length; i++) {
+function searchUpdateCustomer(searchId) {
+    /*for (var i = 0; i < customerDB.length; i++) {
         if (customerDB[i].getId() == searchId) {
             return customerDB[i];
         }
-    }
-}*/
+    }*/
+    var customer = new CustomerDTO();
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
+        method: "GET",
+        success: function (res) {
+            $("#txtCName").val(res.name);
+            $("#txtCaddress").val(res.address);
+            $("#txtCsalary").val(res.salary);
+            $("#btnUpdateCust").prop('disabled', false);
+            $("#txtCName").css('border', '2px solid green');
+            $("#txtCaddress").css('border', '2px solid green');
+            $("#txtCsalary").css('border', '2px solid green');
+            $("#txtCName").focus();
+        },
+        error: function () {
+            $("#txtCName").val("");
+            $("#txtCaddress").val("");
+            $("#txtCsalary").val("");
+            $("#btnUpdateCust").prop('disabled', true);
+            $("#txtCName").css('border', '1px solid #ced4da');
+            $("#txtCaddress").css('border', '1px solid #ced4da');
+            $("#txtCsalary").css('border', '1px solid #ced4da');
+            swal({
+                title: "Error!",
+                text: "Customer Not Found.",
+                icon: "warning",
+                button: "Close",
+                timer: 2000
+            });
+        }
+    });
+}
 
 // Update Customer
 
-/*function updateCustomer() {
-    /!*let updateCustId = $("#txtSearchCustomerId").val();
+function updateCustomer() {
+    /*let updateCustId = $("#txtSearchCustomerId").val();
     let updateCustName = $("#txtCName").val();
     let updateCustAddress = $("#txtCaddress").val();
     let updateCustSalary = $("#txtCsalary").val();
@@ -356,7 +360,7 @@ function addCustomer() {
             clearUpdateCustomerFields();
             $("#btnUpdateCust").prop('disabled', true);
         }
-    }*!/
+    }*/
     var cusOb = {
         id: $("#txtSearchCustomerId").val(),
         name: $("#txtCName").val(),
@@ -364,28 +368,28 @@ function addCustomer() {
         salary: $("#txtCsalary").val()
     }
 
-        $.ajax({
-            url: "customer",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify(cusOb),
-            success: function (res) {
-                if (res.status == 200) {
-                    alert(res.message);
-                    loadAllCustomers();
-                } else if (res.status == 400) {
-                    alert(res.message);
-                } else {
-                    alert(res.data);
-                }
-            },
-            error: function (ob, errorStus) {
-                console.log(ob);
+    $.ajax({
+        url: "http://localhost:8080/spa/customer",
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify(cusOb),
+        success: function (res) {
+            if (res.status == 200) {
+                console.log(res.message)
+                loadAllCustomers();
+                clearUpdateCustomerFields();
+                $("#btnUpdateCust").prop('disabled', true);
+            } else if (res.status == 400) {
+                console.log(res.message);
+            } else {
+                console.log(res.data);
             }
-        });
-    clearUpdateCustomerFields();
-    $("#btnUpdateCust").prop('disabled', true);
-}*/
+        },
+        error: function (ob, errorStus) {
+            console.log(ob);
+        }
+    });
+}
 
 // Delete Customer
 
@@ -405,7 +409,7 @@ function addCustomer() {
 function loadAllCustomers() {
     $("#customerTable").empty();
     $.ajax({
-        url: "http://localhost:8080/spa/customer",
+        url: "http://localhost:8080/spa/customer?option=GETALL",
         method: "GET",
         success: function (resp) {
             for (const customer of resp.data) {
@@ -517,7 +521,7 @@ function clearCustomerFields() {
 
 // Update Customer Form
 
-/*$("#btnUpdateCust").prop('disabled', true);
+$("#btnUpdateCust").prop('disabled', true);
 
 $("#updateCustomer").on('shown.bs.modal', function () {
     $(this).find("#txtSearchCustomerId").focus();
@@ -527,7 +531,6 @@ $("#btnUpdateCust").click(function () {
     let res = confirm("Do you want to update this customer?");
     if (res) {
         updateCustomer();
-        loadAllCustomers();
     }
 });
 
@@ -553,7 +556,7 @@ function clearUpdateCustomerFields() {
     $("#txtCName").css('border', '1px solid #ced4da');
     $("#txtCaddress").css('border', '1px solid #ced4da');
     $("#txtCsalary").css('border', '1px solid #ced4da');
-}*/
+}
 
 // Delete Customer Form
 

@@ -22,15 +22,15 @@ public class CustomerServlet extends HttpServlet {
         try {
             String option = req.getParameter("option");
             resp.setContentType("application/json");
-        
+
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
             PrintWriter writer = resp.getWriter();
 
-            resp.addHeader("Access-Control-Allow-Origin","*");
+            resp.addHeader("Access-Control-Allow-Origin", "*");
 
-            /*switch (option){
-                case "GETALL":*/
+            switch (option) {
+                case "GETALL":
                     ResultSet rst = connection.prepareStatement("SELECT * FROM Customer").executeQuery();
                     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
@@ -41,20 +41,45 @@ public class CustomerServlet extends HttpServlet {
                         double salary = rst.getDouble(4);
 
                         JsonObjectBuilder obj = Json.createObjectBuilder();
-                        obj.add("id",id);
-                        obj.add("name",name);
-                        obj.add("address",address);
-                        obj.add("salary",salary);
+                        obj.add("id", id);
+                        obj.add("name", name);
+                        obj.add("address", address);
+                        obj.add("salary", salary);
 
                         arrayBuilder.add(obj.build());
                     }
 
                     JsonObjectBuilder response = Json.createObjectBuilder();
-                    response.add("status",200);
-                    response.add("message","Done");
-                    response.add("data",arrayBuilder.build());
+                    response.add("status", 200);
+                    response.add("message", "Done");
+                    response.add("data", arrayBuilder.build());
                     writer.print(response.build());
-            /*}*/
+                    break;
+                case "SEARCH":
+                    String custId = req.getParameter("CusID");
+                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Customer WHERE id=?");
+                    pstm.setObject(1, custId);
+                    ResultSet searchSet = pstm.executeQuery();
+
+                    JsonObjectBuilder searchCustomer = Json.createObjectBuilder();
+
+                    while (searchSet.next()) {
+                        String id = searchSet.getString(1);
+                        String name = searchSet.getString(2);
+                        String address = searchSet.getString(3);
+                        double salary = searchSet.getDouble(4);
+
+                        searchCustomer.add("id",id);
+                        searchCustomer.add("name",name);
+                        searchCustomer.add("address",address);
+                        searchCustomer.add("salary",salary);
+
+                    }
+
+                    writer.print(searchCustomer.build());
+
+                    break;
+            }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -72,7 +97,7 @@ public class CustomerServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin","*");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
