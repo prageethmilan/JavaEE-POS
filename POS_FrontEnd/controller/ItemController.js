@@ -12,6 +12,8 @@ let regItemQty = /^[0-9]{1,}$/;
 
 let searchItemCode;
 
+loadAllItems();
+
 // Add Item Form Validations
 $('#txtIcode,#txtItemName,#txtItemUnitPrice,#txtItemQty').on('keydown', function (event) {
     if (event.key == "Tab") {
@@ -118,8 +120,8 @@ function checkIfAddItemFormValid() {
                     if (res) {
                         addItem();
                         loadAllItems();
-                        clearItemFields();
-                        genarateItemCode();
+                        // clearItemFields();
+                        // genarateItemCode();
                     }
                 } else {
                     $("#txtItemQty").focus();
@@ -306,13 +308,14 @@ $("#txtSearchIcode").keyup(function (event) {
 // Add Item
 
 function addItem() {
-    let itemCode = $("#txtIcode").val();
+    /*let itemCode = $("#txtIcode").val();
     let itemName = $("#txtItemName").val();
     let itemUnitPrice = $("#txtItemUnitPrice").val();
     let itemQty = $("#txtItemQty").val();
 
     var item = new ItemDTO(itemCode, itemName, itemUnitPrice, itemQty);
-    itemDB.push(item);
+    itemDB.push(item);*/
+
 }
 
 // Search Item
@@ -362,11 +365,22 @@ function deleteItem() {
 // Load All Items
 
 function loadAllItems() {
-    $("#itemTable").empty();
+    /*$("#itemTable").empty();
     for (var i = 0; i < itemDB.length; i++) {
         let tableRow = `<tr><td>${itemDB[i].getCode()}</td><td>${itemDB[i].getName()}</td><td>${itemDB[i].getUnitPrice()}</td><td>${itemDB[i].getQty()}</td></tr>`;
         $("#itemTable").append(tableRow);
-    }
+    }*/
+    $("#itemTable").empty();
+    $.ajax({
+       url:"http://localhost:8080/spa/item?option=GETALL",
+       method:"GET",
+       success:function (resp) {
+           for (const item of resp.data) {
+               let row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.unitPrice}</td><td>${item.qty}</td></tr>`;
+               $("#itemTable").append(row);
+           }
+       }
+    });
 }
 
 /*End Of CRUD Operations Of Item Form*/
@@ -428,7 +442,7 @@ function searchItemByTable(searchCode) {
 
 $("#addItem").on('shown.bs.modal', function () {
     $(this).find("#txtIcode").focus();
-    genarateItemCode();
+    // genarateItemCode();
 });
 
 $("#btnAddItem").prop('disabled', true);
@@ -439,13 +453,13 @@ $("#btnAddItem").click(function () {
         addItem();
         loadAllItems();
         clearItemFields();
-        genarateItemCode();
+        // genarateItemCode();
     }
 });
 
 $("#btnclearitemform").click(function () {
     clearItemFields();
-    genarateItemCode();
+    // genarateItemCode();
 });
 
 function clearItemFields() {
