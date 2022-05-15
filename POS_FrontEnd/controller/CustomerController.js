@@ -402,6 +402,7 @@ function deleteCustomer() {
             if (res.status == 200) {
                 clearDeleteCustomerFields();
                 loadAllCustomers();
+                $("#btnDeleteCustomer").prop('disabled', true);
             } else if (res.status == 400) {
                 alert(res.data);
             } else {

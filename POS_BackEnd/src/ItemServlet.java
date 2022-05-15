@@ -1,6 +1,4 @@
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -55,6 +53,32 @@ public class ItemServlet extends HttpServlet {
                     response.add("message", "Done");
                     response.add("data", arrayBuilder.build());
                     writer.print(response.build());
+
+                    break;
+                case "SEARCH":
+                    String itemCode = req.getParameter("ItemCode");
+                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Item WHERE code=?");
+                    pstm.setObject(1, itemCode);
+                    ResultSet searchSet = pstm.executeQuery();
+
+                    JsonObjectBuilder searchItem = Json.createObjectBuilder();
+
+
+                    while (searchSet.next()) {
+                        String code = searchSet.getString(1);
+                        String name = searchSet.getString(2);
+                        double unitPrice = searchSet.getDouble(3);
+                        int qty = searchSet.getInt(4);
+
+                        searchItem.add("status", 200);
+                        searchItem.add("code", code);
+                        searchItem.add("name", name);
+                        searchItem.add("unitPrice", unitPrice);
+                        searchItem.add("qty", qty);
+
+                    }
+
+                    writer.print(searchItem.build());
 
                     break;
             }
@@ -117,11 +141,66 @@ public class ItemServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject jsonObject = reader.readObject();
+        String code = jsonObject.getString("code");
+        String name = jsonObject.getString("name");
+        double unitPrice = Double.parseDouble(jsonObject.getString("unitPrice"));
+        int qty = Integer.parseInt(jsonObject.getString("qty"));
+
+        PrintWriter writer = resp.getWriter();
+
+        resp.setContentType("application/json");
+
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
+
+            PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?");
+            pstm.setObject(1,name);
+            pstm.setObject(2,unitPrice);
+            pstm.setObject(3,qty);
+            pstm.setObject(4,code);
+
+            if (pstm.executeUpdate()>0) {
+                JsonObjectBuilder response = Json.createObjectBuilder();
+                response.add("status", 200);
+                response.add("message", "Successfully Updated");
+                response.add("data", "");
+                writer.print(response.build());
+            }else{
+                JsonObjectBuilder response = Json.createObjectBuilder();
+                response.add("status", 400);
+                response.add("message", "Update Failed");
+                response.add("data", "");
+                writer.print(response.build());
+            }
+        } catch (ClassNotFoundException e) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 500);
+            response.add("message", "Update Failed");
+            response.add("data", e.getLocalizedMessage());
+            writer.print(response.build());
+        } catch (SQLException throwables) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 500);
+            response.add("message", "Update Failed");
+            response.add("data", throwables.getLocalizedMessage());
+            writer.print(response.build());
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doDelete(req, resp);
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Methods", "DELETE, PUT");
+        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }

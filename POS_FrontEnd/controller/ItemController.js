@@ -137,7 +137,7 @@ function checkIfAddItemFormValid() {
 
 // Update Item Form Validations
 
-/*$('#txtSearchItemCode,#txtIName,#txtIUnitPrice,#txtIQty').on('keydown', function (event) {
+$('#txtSearchItemCode,#txtIName,#txtIUnitPrice,#txtIQty').on('keydown', function (event) {
     if (event.key == "Tab") {
         event.preventDefault();
     }
@@ -149,35 +149,7 @@ $("#txtSearchItemCode").keyup(function (event) {
         $("#txtSearchItemCode").css('border', '2px solid green');
         $("#searchItemCodeError").text("");
         if (event.key == "Enter") {
-            var foundOrNot = false;
-            let foundItem = searchItem(searchItemCode);
-            if (foundItem) {
-                $("#txtIName").val(foundItem.getName());
-                $("#txtIUnitPrice").val(foundItem.getUnitPrice());
-                $("#txtIQty").val(foundItem.getQty());
-                $("#btnUpdateItem").prop('disabled', false);
-                foundOrNot = true;
-                $("#txtIName").css('border', '2px solid green');
-                $("#txtIUnitPrice").css('border', '2px solid green');
-                $("#txtIQty").css('border', '2px solid green');
-                $("#txtIName").focus();
-            }
-            if (foundOrNot == false) {
-                $("#txtIName").val("");
-                $("#txtIUnitPrice").val("");
-                $("#txtIQty").val("");
-                $("#txtIName").css('border', '1px solid #ced4da');
-                $("#txtIUnitPrice").css('border', '1px solid #ced4da');
-                $("#txtIQty").css('border', '1px solid #ced4da');
-                $("#btnUpdateItem").prop('disabled', true);
-                swal({
-                    title: "Error!",
-                    text: "Item Not Found.",
-                    icon: "warning",
-                    button: "Close",
-                    timer: 2000
-                });
-            }
+            searchUpdateItem(searchItemCode);
         }
     } else {
         $("#txtSearchItemCode").css('border', '2px solid red');
@@ -249,7 +221,7 @@ $("#txtIQty").keyup(function (event) {
             let res = confirm("Do you want to update this item?");
             if (res) {
                 updateItem();
-                loadAllItems();
+                // loadAllItems();
             }
         }
 
@@ -258,27 +230,104 @@ $("#txtIQty").keyup(function (event) {
         $("#txtIQty").css('border', '2px solid red');
         $("#iqtyError").text("item qty is a required field.Pattern : 100");
     }
-});*/
+});
 
 // Delete Item Form Validations
 
-/*$("#txtSearchIcode").keyup(function (event) {
+$("#txtSearchIcode").keyup(function (event) {
     searchItemCode = $("#txtSearchIcode").val();
     if (regItemCode.test(searchItemCode)) {
         $("#txtSearchIcode").css('border', '2px solid green');
         $("#searchICodeError").text("");
         if (event.key == "Enter") {
-            var foundOrNot = false;
-            let foundItem = searchItem(searchItemCode);
-            if (foundItem) {
-                $("#txtdisabledName").val(foundItem.getName());
-                $("#txtdisabledUnitPrice").val(foundItem.getUnitPrice());
-                $("#txtdisabledQty").val(foundItem.getQty());
-                $("#btnDeleteItem").prop('disabled', false);
-                foundOrNot = true;
-                $("#btnDeleteItem").focus();
+            searchDeleteItem(searchItemCode);
+        }
+    } else {
+        $("#txtSearchIcode").css('border', '2px solid red');
+        $("#searchICodeError").text("Item Code is a required field.Pattern : I00-0001");
+        $("#btnDeleteItem").prop('disabled', true);
+    }
+});
+
+/*End Of Item Form Validations*/
+
+/*CRUD Operations Of Item Form*/
+
+// Add Item
+
+function addItem() {
+    var data = $("#addItemForm").serialize();
+    $.ajax({
+        url: "http://localhost:8080/spa/item",
+        method: "POST",
+        data: data,
+        success: function (res) {
+            if (res.status == 200) {
+                console.log(res.data);
+                loadAllItems();
+                clearItemFields();
+            } else {
+                alert(res.data);
             }
-            if (foundOrNot == false) {
+        },
+        error: function (ob, textStatus, error) {
+            console.log(ob);
+            console.log(textStatus);
+            console.log(error);
+        }
+    })
+
+}
+
+// Search Item
+
+function searchUpdateItem(itemCode) {
+    $.ajax({
+        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + itemCode,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#txtIName").val(res.name);
+                $("#txtIUnitPrice").val(res.unitPrice);
+                $("#txtIQty").val(res.qty);
+                $("#btnUpdateItem").prop('disabled', false);
+
+                $("#txtIName").css('border', '2px solid green');
+                $("#txtIUnitPrice").css('border', '2px solid green');
+                $("#txtIQty").css('border', '2px solid green');
+                $("#txtIName").focus();
+            } else {
+                $("#txtIName").val("");
+                $("#txtIUnitPrice").val("");
+                $("#txtIQty").val("");
+                $("#txtIName").css('border', '1px solid #ced4da');
+                $("#txtIUnitPrice").css('border', '1px solid #ced4da');
+                $("#txtIQty").css('border', '1px solid #ced4da');
+                $("#btnUpdateItem").prop('disabled', true);
+                swal({
+                    title: "Error!",
+                    text: "Item Not Found.",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
+        },
+    })
+}
+
+function searchDeleteItem(searchId){
+    $.ajax({
+        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + itemCode,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#txtdisabledName").val(res.name);
+                $("#txtdisabledUnitPrice").val(res.unitPrice);
+                $("#txtdisabledQty").val(res.qty);
+                $("#btnDeleteItem").prop('disabled', false);
+                $("#btnDeleteItem").focus();
+            } else {
                 $("#txtdisabledName").val("");
                 $("#txtdisabledUnitPrice").val("");
                 $("#txtdisabledQty").val("");
@@ -291,115 +340,78 @@ $("#txtIQty").keyup(function (event) {
                     timer: 2000
                 });
             }
-        }
-    } else {
-        $("#txtSearchIcode").css('border', '2px solid red');
-        $("#searchICodeError").text("Item Code is a required field.Pattern : I00-0001");
-        $("#btnDeleteItem").prop('disabled', true);
-    }
-});*/
-
-/*End Of Item Form Validations*/
-
-/*CRUD Operations Of Item Form*/
-
-// Add Item
-
-function addItem() {
-    /*let itemCode = $("#txtIcode").val();
-    let itemName = $("#txtItemName").val();
-    let itemUnitPrice = $("#txtItemUnitPrice").val();
-    let itemQty = $("#txtItemQty").val();
-
-    var item = new ItemDTO(itemCode, itemName, itemUnitPrice, itemQty);
-    itemDB.push(item);*/
-    var data = $("#addItemForm").serialize();
-    $.ajax({
-        url:"http://localhost:8080/spa/item",
-        method: "POST",
-        data:data,
-        success:function (res) {
-            if (res.status==200){
-                console.log(res.data);
-                loadAllItems();
-                clearItemFields();
-            } else{
-                alert(res.data);
-            }
         },
-        error:function (ob, textStatus, error) {
-            console.log(ob);
-            console.log(textStatus);
-            console.log(error);
-        }
     })
-
 }
-
-// Search Item
-
-/*function searchItem(itemCode) {
-    for (var i = 0; i < itemDB.length; i++) {
-        if (itemDB[i].getCode() == itemCode) {
-            return itemDB[i];
-        }
-    }
-}*/
 
 // Update Item
 
-/*
 function updateItem() {
-    let updateItemCode = $("#txtSearchItemCode").val();
-    let updateItemName = $("#txtIName").val();
-    let updateItemUnitprice = $("#txtIUnitPrice").val();
-    let updateItemQty = $("#txtIQty").val();
-
-    for (var i = 0; i < itemDB.length; i++) {
-        if (itemDB[i].getCode() == updateItemCode) {
-            itemDB[i].setCode(updateItemCode);
-            itemDB[i].setName(updateItemName);
-            itemDB[i].setUnitPrice(updateItemUnitprice);
-            itemDB[i].setQty(updateItemQty);
-
-            clearUpdateItemFields();
-            $("#btnUpdateItem").prop('disabled', true);
-        }
+    var itemObj = {
+        code: $("#txtSearchItemCode").val(),
+        name: $("#txtIName").val(),
+        unitPrice: $("#txtIUnitPrice").val(),
+        qty: $("#txtIQty").val()
     }
+
+    $.ajax({
+        url: "http://localhost:8080/spa/item",
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify(itemObj),
+        success: function (res) {
+            if (res.status == 200) {
+                console.log(res.message)
+                loadAllItems();
+                clearUpdateItemFields();
+                $("#btnUpdateItem").prop('disabled', true);
+            } else if (res.status == 400) {
+                console.log(res.message);
+            } else {
+                console.log(res.data);
+            }
+        },
+        error: function (ob, errorStus) {
+            console.log(ob);
+        }
+    })
 }
-*/
 
 // Delete Item
 
-/*function deleteItem() {
+function deleteItem() {
     let searchIcode = $("#txtSearchIcode").val();
-    for (var i = 0; i < itemDB.length; i++) {
-        if (itemDB[i].getCode() == searchIcode) {
-            itemDB.splice(i, 1);
-            clearDeleteItemFields();
-            $("#btnDeleteItem").prop('disabled', true);
+    $.ajax({
+        url:"http://localhost:8080/spa/item?itemCode=" + searchIcode,
+        method:"DELETE",
+        success:function (res) {
+            console.log(res);
+            if (res.status == 200) {
+                clearDeleteItemFields();
+                loadAllItems();
+                $("#btnDeleteItem").prop('disabled', true);
+            } else if (res.status == 400) {
+                alert(res.data);
+            } else {
+                alert(res.data);
+            }
         }
-    }
-}*/
+    })
+}
 
 // Load All Items
 
 function loadAllItems() {
-    /*$("#itemTable").empty();
-    for (var i = 0; i < itemDB.length; i++) {
-        let tableRow = `<tr><td>${itemDB[i].getCode()}</td><td>${itemDB[i].getName()}</td><td>${itemDB[i].getUnitPrice()}</td><td>${itemDB[i].getQty()}</td></tr>`;
-        $("#itemTable").append(tableRow);
-    }*/
     $("#itemTable").empty();
     $.ajax({
-       url:"http://localhost:8080/spa/item?option=GETALL",
-       method:"GET",
-       success:function (resp) {
-           for (const item of resp.data) {
-               let row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.unitPrice}</td><td>${item.qty}</td></tr>`;
-               $("#itemTable").append(row);
-           }
-       }
+        url: "http://localhost:8080/spa/item?option=GETALL",
+        method: "GET",
+        success: function (resp) {
+            for (const item of resp.data) {
+                let row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.unitPrice}</td><td>${item.qty}</td></tr>`;
+                $("#itemTable").append(row);
+            }
+        }
     });
 }
 
@@ -471,8 +483,6 @@ $("#btnAddItem").click(function () {
     let res = confirm("Do you want to add this item?");
     if (res) {
         addItem();
-        // loadAllItems();
-        // clearItemFields();
         // genarateItemCode();
     }
 });
@@ -505,7 +515,7 @@ function clearItemFields() {
 
 // Update Item Form
 
-/*$("#updateItem").on('shown.bs.modal', function () {
+$("#updateItem").on('shown.bs.modal', function () {
     $(this).find("#txtSearchItemCode").focus();
 })
 
@@ -515,7 +525,6 @@ $("#btnUpdateItem").click(function () {
     let res = confirm("Do you want to update this item?");
     if (res) {
         updateItem();
-        loadAllItems();
     }
 });
 
@@ -541,11 +550,11 @@ function clearUpdateItemFields() {
     $("#txtIName").css('border', '1px solid #ced4da');
     $("#txtIUnitPrice").css('border', '1px solid #ced4da');
     $("#txtIQty").css('border', '1px solid #ced4da');
-}*/
+}
 
 // Delete Item Form
 
-/*$("#btnDeleteItem").prop('disabled', true);
+$("#btnDeleteItem").prop('disabled', true);
 
 $("#deleteItem").on('shown.bs.modal', function () {
     $(this).find("#txtSearchIcode").focus();
@@ -555,7 +564,7 @@ $("#btnDeleteItem").click(function () {
     let res = confirm("Do you want to delete this item?");
     if (res) {
         deleteItem();
-        loadAllItems();
+        // loadAllItems();
     }
 });
 
@@ -573,7 +582,7 @@ function clearDeleteItemFields() {
     $("#txtdisabledQty").val("");
 
     $("#searchICodeError").text("");
-}*/
+}
 
 //Other
 
