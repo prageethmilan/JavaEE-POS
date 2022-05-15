@@ -159,18 +159,18 @@ public class ItemServlet extends HttpServlet {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
             PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?");
-            pstm.setObject(1,name);
-            pstm.setObject(2,unitPrice);
-            pstm.setObject(3,qty);
-            pstm.setObject(4,code);
+            pstm.setObject(1, name);
+            pstm.setObject(2, unitPrice);
+            pstm.setObject(3, qty);
+            pstm.setObject(4, code);
 
-            if (pstm.executeUpdate()>0) {
+            if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 200);
                 response.add("message", "Successfully Updated");
                 response.add("data", "");
                 writer.print(response.build());
-            }else{
+            } else {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 400);
                 response.add("message", "Update Failed");
@@ -194,7 +194,47 @@ public class ItemServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        String itemCode = req.getParameter("itemCode");
+        PrintWriter writer = resp.getWriter();
+        resp.setContentType("application/json");
+
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
+
+            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Item WHERE code=?");
+            pstm.setObject(1, itemCode);
+
+            if (pstm.executeUpdate() > 0) {
+                JsonObjectBuilder builder = Json.createObjectBuilder();
+                builder.add("status", 200);
+                builder.add("data", "");
+                builder.add("message", "Successfully deleted");
+                writer.print(builder.build());
+            } else {
+                JsonObjectBuilder builder = Json.createObjectBuilder();
+                builder.add("status", 400);
+                builder.add("data", "");
+                builder.add("message", "Delete Failed");
+                writer.print(builder.build());
+            }
+        } catch (ClassNotFoundException e) {
+            resp.setStatus(200);
+            JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+            objectBuilder.add("status", 500);
+            objectBuilder.add("message", "Error");
+            objectBuilder.add("data", e.getLocalizedMessage());
+            writer.print(objectBuilder.build());
+        } catch (SQLException throwables) {
+            resp.setStatus(200);
+            JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+            objectBuilder.add("status", 500);
+            objectBuilder.add("message", "Error");
+            objectBuilder.add("data", throwables.getLocalizedMessage());
+            writer.print(objectBuilder.build());
+        }
     }
 
     @Override

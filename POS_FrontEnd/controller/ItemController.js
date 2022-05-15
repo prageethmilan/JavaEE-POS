@@ -318,7 +318,7 @@ function searchUpdateItem(itemCode) {
 
 function searchDeleteItem(searchId){
     $.ajax({
-        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + itemCode,
+        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + searchId,
         method: "GET",
         success: function (res) {
             if (res.status == 200) {
@@ -442,32 +442,28 @@ function loadAllItems() {
 
 // Search Item By Table
 
-/*function searchItemByTable(searchCode) {
-    var item = searchItem(searchCode);
-    let foundOrNot = false;
-    if (item) {
-        var code = item.getCode();
-        var name = item.getName();
-        var unitPrice = item.getUnitPrice();
-        var qty = item.getQty();
-
-        $("#itemTable").empty();
-
-        let tableRow = `<tr><td>${code}</td><td>${name}</td><td>${unitPrice}</td><td>${qty}</td></tr>`;
-        $("#itemTable").append(tableRow);
-        foundOrNot = true;
-    }
-    if (foundOrNot == false) {
-        loadAllItems();
-        swal({
-            title: "Error!",
-            text: "Item Not Found.",
-            icon: "warning",
-            button: "Close",
-            timer: 2000
-        });
-    }
-}*/
+function searchItemByTable(searchCode) {
+    $.ajax({
+        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + searchCode,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#itemTable").empty();
+                let tableRow = `<tr><td>${res.code}</td><td>${res.name}</td><td>${res.unitPrice}</td><td>${res.qty}</td></tr>`;
+                $("#itemTable").append(tableRow);
+            } else {
+                loadAllItems();
+                swal({
+                    title: "Error!",
+                    text: "Item Not Found.",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
+        },
+    });
+}
 
 /*Controller Functions*/
 // Add Item Form
@@ -586,7 +582,6 @@ function clearDeleteItemFields() {
 
 //Other
 
-/*
 $("#searchItemForm").submit(function (e) {
     e.preventDefault();
 });
@@ -612,4 +607,4 @@ $("#btnClearSearchItemField").click(function () {
     $("#txtSIcode").val("");
     $("#txtSIcode").css('border', '1px solid #ced4da');
     loadAllItems();
-});*/
+});
