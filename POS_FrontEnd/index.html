@@ -498,28 +498,28 @@
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="addItemForm">
                     <div class="ms-3 me-3">
                         <label class="form-label fw-bold mb-0" for="txtIcode">Item Code :</label>
-                        <input class="form-control" id="txtIcode"
+                        <input class="form-control" id="txtIcode" name="itemCode"
                                type="text">
                         <p><small class="text-danger" id="itemCodeError"></small></p>
                     </div>
                     <div class="ms-3 me-3">
                         <label class="form-label fw-bold mb-0" for="txtItemName">Item Name :</label>
-                        <input class="form-control" id="txtItemName"
+                        <input class="form-control" id="txtItemName" name="itemName"
                                type="text">
                         <p><small class="text-danger" id="itemNameError"></small></p>
                     </div>
                     <div class="ms-3 me-3">
                         <label class="form-label fw-bold mb-0" for="txtItemUnitPrice">Item Unit Price :</label>
-                        <input class="form-control" id="txtItemUnitPrice"
+                        <input class="form-control" id="txtItemUnitPrice" name="unitPrice"
                                type="number">
                         <p><small class="text-danger" id="itemUnitPriceError"></small></p>
                     </div>
                     <div class="ms-3 me-3">
                         <label class="form-label fw-bold mb-0" for="txtItemQty">Item Quantity :</label>
-                        <input class="form-control" id="txtItemQty"
+                        <input class="form-control" id="txtItemQty" name="itemQty"
                                type="number">
                         <p><small class="text-danger" id="itemQtyError"></small></p>
                     </div>

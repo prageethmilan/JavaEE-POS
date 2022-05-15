@@ -8,10 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * @author : M-Prageeth
@@ -45,18 +42,18 @@ public class ItemServlet extends HttpServlet {
                         int qty = rst.getInt(4);
 
                         JsonObjectBuilder obj = Json.createObjectBuilder();
-                        obj.add("code",code);
-                        obj.add("name",name);
-                        obj.add("unitPrice",unitPrice);
-                        obj.add("qty",qty);
+                        obj.add("code", code);
+                        obj.add("name", name);
+                        obj.add("unitPrice", unitPrice);
+                        obj.add("qty", qty);
 
                         arrayBuilder.add(obj.build());
                     }
 
                     JsonObjectBuilder response = Json.createObjectBuilder();
-                    response.add("status",200);
-                    response.add("message","Done");
-                    response.add("data",arrayBuilder.build());
+                    response.add("status", 200);
+                    response.add("message", "Done");
+                    response.add("data", arrayBuilder.build());
                     writer.print(response.build());
 
                     break;
@@ -70,7 +67,52 @@ public class ItemServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        String itemCode = req.getParameter("itemCode");
+        String itemName = req.getParameter("itemName");
+        double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
+        int itemQty = Integer.parseInt(req.getParameter("itemQty"));
+
+        PrintWriter writer = resp.getWriter();
+        resp.setContentType("application/json");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
+
+            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Item VALUES (?,?,?,?)");
+            pstm.setObject(1, itemCode);
+            pstm.setObject(2, itemName);
+            pstm.setObject(3, unitPrice);
+            pstm.setObject(4, itemQty);
+
+            if (pstm.executeUpdate() > 0) {
+                JsonObjectBuilder response = Json.createObjectBuilder();
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                response.add("status", 200);
+                response.add("message", "Successfully added");
+                response.add("data", "");
+                writer.print(response.build());
+            }
+        } catch (ClassNotFoundException e) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 400);
+            response.add("message", "error");
+            response.add("data", e.getLocalizedMessage());
+            writer.print(response.build());
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            JsonObjectBuilder response = Json.createObjectBuilder();
+            response.add("status", 400);
+            response.add("message", "error");
+            response.add("data", throwables.getLocalizedMessage());
+            writer.print(response.build());
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            throwables.printStackTrace();
+        }
     }
 
     @Override

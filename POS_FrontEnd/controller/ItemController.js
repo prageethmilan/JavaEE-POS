@@ -119,8 +119,6 @@ function checkIfAddItemFormValid() {
                     let res = confirm("Do you want to add this Item..?");
                     if (res) {
                         addItem();
-                        loadAllItems();
-                        // clearItemFields();
                         // genarateItemCode();
                     }
                 } else {
@@ -139,7 +137,7 @@ function checkIfAddItemFormValid() {
 
 // Update Item Form Validations
 
-$('#txtSearchItemCode,#txtIName,#txtIUnitPrice,#txtIQty').on('keydown', function (event) {
+/*$('#txtSearchItemCode,#txtIName,#txtIUnitPrice,#txtIQty').on('keydown', function (event) {
     if (event.key == "Tab") {
         event.preventDefault();
     }
@@ -260,11 +258,11 @@ $("#txtIQty").keyup(function (event) {
         $("#txtIQty").css('border', '2px solid red');
         $("#iqtyError").text("item qty is a required field.Pattern : 100");
     }
-});
+});*/
 
 // Delete Item Form Validations
 
-$("#txtSearchIcode").keyup(function (event) {
+/*$("#txtSearchIcode").keyup(function (event) {
     searchItemCode = $("#txtSearchIcode").val();
     if (regItemCode.test(searchItemCode)) {
         $("#txtSearchIcode").css('border', '2px solid green');
@@ -299,7 +297,7 @@ $("#txtSearchIcode").keyup(function (event) {
         $("#searchICodeError").text("Item Code is a required field.Pattern : I00-0001");
         $("#btnDeleteItem").prop('disabled', true);
     }
-});
+});*/
 
 /*End Of Item Form Validations*/
 
@@ -315,21 +313,42 @@ function addItem() {
 
     var item = new ItemDTO(itemCode, itemName, itemUnitPrice, itemQty);
     itemDB.push(item);*/
+    var data = $("#addItemForm").serialize();
+    $.ajax({
+        url:"http://localhost:8080/spa/item",
+        method: "POST",
+        data:data,
+        success:function (res) {
+            if (res.status==200){
+                console.log(res.data);
+                loadAllItems();
+                clearItemFields();
+            } else{
+                alert(res.data);
+            }
+        },
+        error:function (ob, textStatus, error) {
+            console.log(ob);
+            console.log(textStatus);
+            console.log(error);
+        }
+    })
 
 }
 
 // Search Item
 
-function searchItem(itemCode) {
+/*function searchItem(itemCode) {
     for (var i = 0; i < itemDB.length; i++) {
         if (itemDB[i].getCode() == itemCode) {
             return itemDB[i];
         }
     }
-}
+}*/
 
 // Update Item
 
+/*
 function updateItem() {
     let updateItemCode = $("#txtSearchItemCode").val();
     let updateItemName = $("#txtIName").val();
@@ -348,10 +367,11 @@ function updateItem() {
         }
     }
 }
+*/
 
 // Delete Item
 
-function deleteItem() {
+/*function deleteItem() {
     let searchIcode = $("#txtSearchIcode").val();
     for (var i = 0; i < itemDB.length; i++) {
         if (itemDB[i].getCode() == searchIcode) {
@@ -360,7 +380,7 @@ function deleteItem() {
             $("#btnDeleteItem").prop('disabled', true);
         }
     }
-}
+}*/
 
 // Load All Items
 
@@ -389,7 +409,7 @@ function loadAllItems() {
 
 // Generate Item Code
 
-function genarateItemCode() {
+/*function genarateItemCode() {
     if (itemDB.length == 0) {
         $("#txtIcode").val("I00-0001");
     } else if (itemDB.length > 0) {
@@ -406,11 +426,11 @@ function genarateItemCode() {
             $("#txtIcode").val("I00-" + tempCode);
         }
     }
-}
+}*/
 
 // Search Item By Table
 
-function searchItemByTable(searchCode) {
+/*function searchItemByTable(searchCode) {
     var item = searchItem(searchCode);
     let foundOrNot = false;
     if (item) {
@@ -435,7 +455,7 @@ function searchItemByTable(searchCode) {
             timer: 2000
         });
     }
-}
+}*/
 
 /*Controller Functions*/
 // Add Item Form
@@ -451,8 +471,8 @@ $("#btnAddItem").click(function () {
     let res = confirm("Do you want to add this item?");
     if (res) {
         addItem();
-        loadAllItems();
-        clearItemFields();
+        // loadAllItems();
+        // clearItemFields();
         // genarateItemCode();
     }
 });
@@ -485,7 +505,7 @@ function clearItemFields() {
 
 // Update Item Form
 
-$("#updateItem").on('shown.bs.modal', function () {
+/*$("#updateItem").on('shown.bs.modal', function () {
     $(this).find("#txtSearchItemCode").focus();
 })
 
@@ -521,11 +541,11 @@ function clearUpdateItemFields() {
     $("#txtIName").css('border', '1px solid #ced4da');
     $("#txtIUnitPrice").css('border', '1px solid #ced4da');
     $("#txtIQty").css('border', '1px solid #ced4da');
-}
+}*/
 
 // Delete Item Form
 
-$("#btnDeleteItem").prop('disabled', true);
+/*$("#btnDeleteItem").prop('disabled', true);
 
 $("#deleteItem").on('shown.bs.modal', function () {
     $(this).find("#txtSearchIcode").focus();
@@ -553,10 +573,11 @@ function clearDeleteItemFields() {
     $("#txtdisabledQty").val("");
 
     $("#searchICodeError").text("");
-}
+}*/
 
 //Other
 
+/*
 $("#searchItemForm").submit(function (e) {
     e.preventDefault();
 });
@@ -582,4 +603,4 @@ $("#btnClearSearchItemField").click(function () {
     $("#txtSIcode").val("");
     $("#txtSIcode").css('border', '1px solid #ced4da');
     loadAllItems();
-});
+});*/
