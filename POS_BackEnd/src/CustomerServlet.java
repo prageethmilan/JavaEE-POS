@@ -103,7 +103,7 @@ public class CustomerServlet extends HttpServlet {
                     }
 
                     writer.print(obj.build());
-
+                    break;
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

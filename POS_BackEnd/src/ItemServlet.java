@@ -81,6 +81,34 @@ public class ItemServlet extends HttpServlet {
                     writer.print(searchItem.build());
 
                     break;
+
+                case "GENERATEITEMCODE":
+                    ResultSet codeSet = connection.prepareStatement("SELECT code FROM Item ORDER BY code DESC LIMIT 1").executeQuery();
+                    JsonObjectBuilder obj = Json.createObjectBuilder();
+                    if (codeSet.next()) {
+                        int tempCode = Integer.parseInt(codeSet.getString(1).split("-")[1]);
+                        tempCode = tempCode + 1;
+                        if (tempCode <= 9) {
+                            String code = "I00-000" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 99) {
+                            String code = "I00-00" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 999) {
+                            String code = "I00-0" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 9999) {
+                            String code = "I00-" + tempCode;
+                            obj.add("code", code);
+                        }
+                    }else{
+                        String code = "I00-0001";
+                        obj.add("code",code);
+                    }
+
+                    writer.print(obj.build());
+
+                    break;
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

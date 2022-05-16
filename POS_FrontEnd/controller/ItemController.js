@@ -266,6 +266,7 @@ function addItem() {
                 console.log(res.data);
                 loadAllItems();
                 clearItemFields();
+                genarateItemCode();
             } else {
                 alert(res.data);
             }
@@ -421,24 +422,15 @@ function loadAllItems() {
 
 // Generate Item Code
 
-/*function genarateItemCode() {
-    if (itemDB.length == 0) {
-        $("#txtIcode").val("I00-0001");
-    } else if (itemDB.length > 0) {
-        var code = itemDB[itemDB.length - 1].getCode().split("-")[1];
-        var tempCode = parseInt(code);
-        tempCode = tempCode + 1;
-        if (tempCode <= 9) {
-            $("#txtIcode").val("I00-000" + tempCode);
-        } else if (tempCode <= 99) {
-            $("#txtIcode").val("I00-00" + tempCode);
-        } else if (tempCode <= 999) {
-            $("#txtIcode").val("I00-0" + tempCode);
-        } else if (tempCode <= 9999) {
-            $("#txtIcode").val("I00-" + tempCode);
+function genarateItemCode() {
+    $.ajax({
+        url: "http://localhost:8080/spa/item?option=GENERATEITEMCODE",
+        method: "GET",
+        success: function (res) {
+            $("#txtIcode").val(res.code);
         }
-    }
-}*/
+    });
+}
 
 // Search Item By Table
 
@@ -470,7 +462,7 @@ function searchItemByTable(searchCode) {
 
 $("#addItem").on('shown.bs.modal', function () {
     $(this).find("#txtIcode").focus();
-    // genarateItemCode();
+    genarateItemCode();
 });
 
 $("#btnAddItem").prop('disabled', true);
@@ -485,7 +477,7 @@ $("#btnAddItem").click(function () {
 
 $("#btnclearitemform").click(function () {
     clearItemFields();
-    // genarateItemCode();
+    genarateItemCode();
 });
 
 function clearItemFields() {
