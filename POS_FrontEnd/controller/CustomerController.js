@@ -119,7 +119,6 @@ function checkIfAddCustomerFormValid() {
                     let res = confirm("Do you want to add this Customer..?");
                     if (res) {
                         addCustomer();
-                        /*generateCustomerId();*/
                     }
                 } else {
                     $("#txtCustomerSalary").focus();
@@ -267,6 +266,7 @@ function addCustomer() {
                 console.log(res.data);
                 loadAllCustomers();
                 clearCustomerFields();
+                generateCustomerId();
             } else {
                 alert(res.data);
             }
@@ -434,45 +434,19 @@ function loadAllCustomers() {
 
 // Generate Customer Id
 
-/*function generateCustomerId() {
-    if (customerDB.length == 0) {
-        $("#txtCustomerId").val("C00-0001");
-    } else if (customerDB.length > 0) {
-        var id = customerDB[customerDB.length - 1].getId().split("-")[1];
-        var tempId = parseInt(id);
-        tempId = tempId + 1;
-        if (tempId <= 9) {
-            $("#txtCustomerId").val("C00-000" + tempId);
-        } else if (tempId <= 99) {
-            $("#txtCustomerId").val("C00-00" + tempId);
-        } else if (tempId <= 999) {
-            $("#txtCustomerId").val("C00-0" + tempId);
-        } else if (tempId <= 9999) {
-            $("#txtCustomerId").val("C00-" + tempId);
+function generateCustomerId() {
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?option=GENERATECUSTID",
+        method: "GET",
+        success: function (res) {
+            $("#txtCustomerId").val(res.id);
         }
-    }
-}*/
+    });
+}
 
 // Search Customer By Table
 
 function searchCustomerByTable(searchId) {
-    /*var customer = searchCustomer(searchId);
-    let foundOrNot = false;
-    if (customer) {
-        var id = customer.getId();
-        var name = customer.getName();
-        var address = customer.getAddress();
-        var salary = customer.getSalary();
-
-        $("#customerTable").empty();
-
-        let tableRow = `<tr><td>${id}</td><td>${name}</td><td>${address}</td><td>${salary}</td></tr>`;
-        $("#customerTable").append(tableRow);
-        foundOrNot = true;
-    }
-    if (foundOrNot == false) {
-
-    }*/
     $.ajax({
         url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
         method: "GET",
@@ -500,7 +474,7 @@ function searchCustomerByTable(searchId) {
 
 $("#registerCustomer").on('shown.bs.modal', function () {
     $(this).find("#txtCustomerId").focus();
-    // generateCustomerId();
+    generateCustomerId();
 });
 
 $("#btnRegisterCustomer").prop('disabled', true);
@@ -515,7 +489,7 @@ $("#btnRegisterCustomer").click(function () {
 
 $("#btnclearcustomerform").click(function () {
     clearCustomerFields();
-    /*generateCustomerId();*/
+    generateCustomerId();
 });
 
 function clearCustomerFields() {

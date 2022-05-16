@@ -67,7 +67,7 @@ public class CustomerServlet extends HttpServlet {
                         String address = searchSet.getString(3);
                         double salary = searchSet.getDouble(4);
 
-                        searchCustomer.add("status",200);
+                        searchCustomer.add("status", 200);
                         searchCustomer.add("id", id);
                         searchCustomer.add("name", name);
                         searchCustomer.add("address", address);
@@ -78,6 +78,32 @@ public class CustomerServlet extends HttpServlet {
                     writer.print(searchCustomer.build());
 
                     break;
+                case "GENERATECUSTID":
+                    ResultSet idSet = connection.prepareStatement("SELECT id FROM Customer ORDER BY id DESC LIMIT 1").executeQuery();
+                    JsonObjectBuilder obj = Json.createObjectBuilder();
+                    if (idSet.next()) {
+                        int tempId = Integer.parseInt(idSet.getString(1).split("-")[1]);
+                        tempId = tempId + 1;
+                        if (tempId <= 9) {
+                            String id = "C00-000" + tempId;
+                            obj.add("id", id);
+                        } else if (tempId <= 99) {
+                            String id = "C00-00" + tempId;
+                            obj.add("id", id);
+                        } else if (tempId <= 999) {
+                            String id = "C00-0" + tempId;
+                            obj.add("id", id);
+                        } else if (tempId <= 9999) {
+                            String id = "C00-" + tempId;
+                            obj.add("id", id);
+                        }
+                    }else{
+                        String id = "C00-0001";
+                        obj.add("id",id);
+                    }
+
+                    writer.print(obj.build());
+
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -196,26 +222,26 @@ public class CustomerServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
 
-        resp.addHeader("Access-Control-Allow-Origin","*");
+        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
             PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
-            pstm.setObject(1,cusID);
+            pstm.setObject(1, cusID);
 
-            if (pstm.executeUpdate()>0) {
+            if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
-                builder.add("status",200);
-                builder.add("data","");
-                builder.add("message","Successfully deleted");
+                builder.add("status", 200);
+                builder.add("data", "");
+                builder.add("message", "Successfully deleted");
                 writer.print(builder.build());
-            }else{
+            } else {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
-                builder.add("status",400);
-                builder.add("data","");
-                builder.add("message","Delete Failed");
+                builder.add("status", 400);
+                builder.add("data", "");
+                builder.add("message", "Delete Failed");
                 writer.print(builder.build());
             }
         } catch (ClassNotFoundException e) {
