@@ -8,28 +8,20 @@ $("#btnAddToCart").prop('disabled', true);
 $("#btnPlaceOrder").prop('disabled', true);
 let regBuyItemQty = /^[0-9]{1,}$/;
 
+generateOId();
 // Generate Order Id
 function generateOId() {
-    if (orderDB.length == 0) {
-        $("#txtOrderId").val("O-0001");
-    } else if (orderDB.length > 0) {
-        var orderId = orderDB[orderDB.length - 1].getOrderId().split("-")[1];
-        var tempId = parseInt(orderId);
-        tempId = tempId + 1;
-        if (tempId <= 9) {
-            $("#txtOrderId").val("O-000" + tempId);
-        } else if (tempId <= 99) {
-            $("#txtOrderId").val("O-00" + tempId);
-        } else if (tempId <= 999) {
-            $("#txtOrderId").val("O-0" + tempId);
-        } else if (tempId <= 9999) {
-            $("#txtOrderId").val("O-" + tempId);
+    $.ajax({
+        url:"http://localhost:8080/spa/order?option=GENERATEORDERID",
+        method:"GET",
+        success:function (res) {
+            $("#txtOrderId").val(res.orderId);
         }
-    }
+    })
 }
 
 // Add Listener method to customer id combo box for search customer details
-$("#cmbSelectCustomerId").change(function () {
+/*$("#cmbSelectCustomerId").change(function () {
     var id = $("#cmbSelectCustomerId").find('option:selected').text();
     var found = false;
     for (var i = 0; i < customerDB.length; i++) {
@@ -50,10 +42,10 @@ $("#cmbSelectCustomerId").change(function () {
         $("#txtpocsalary").val("");
         $("#btnAddToCart").prop('disabled', true);
     }
-});
+});*/
 
 // Add Listener method to item code combo box for search item details
-$("#cmbitemcode").change(function () {
+/*$("#cmbitemcode").change(function () {
     var code = $("#cmbitemcode").find('option:selected').text();
     var found = false;
     for (var i = 0; i < itemDB.length; i++) {
@@ -89,15 +81,15 @@ $("#cmbitemcode").change(function () {
         $("#txtqtyOnHand").val("");
         $("#btnAddToCart").prop('disabled', true);
     }
-});
+});*/
 
 // Add Validation for buy qty text field
-$("#txtbuyQty").on('keyup', function () {
+/*$("#txtbuyQty").on('keyup', function () {
     addValidation();
-});
+});*/
 
 // Add Validation to buy qty field and check if comboboxes are empty or not.
-function addValidation() {
+/*function addValidation() {
     var buyQty = $("#txtbuyQty").val();
     if (regBuyItemQty.test(buyQty)) {
         $("#txtbuyQty").css('border', '2px solid green');
@@ -110,10 +102,10 @@ function addValidation() {
         $("#txtbuyQty").css('border', '2px solid red');
         $("#btnAddToCart").prop('disabled', true);
     }
-}
+}*/
 
 // Add items to cart
-$("#btnAddToCart").click(function () {
+/*$("#btnAddToCart").click(function () {
     var qtyOnHand = parseInt($("#txtqtyOnHand").val());
     var buyQty = parseInt($("#txtbuyQty").val());
     if (buyQty <= qtyOnHand) {
@@ -142,9 +134,9 @@ $("#btnAddToCart").click(function () {
             timer: 2000
         });
     }
-});
+});*/
 
-function addItemsToCart() {
+/*function addItemsToCart() {
     var itemCode = $("#cmbitemcode").find('option:selected').text();
     var itemName = $("#txtpoiName").val();
     var itemPrice = $("#txtitemPrice").val();
@@ -171,19 +163,19 @@ function addItemsToCart() {
     if (found == false) {
         cartTMDB.push(cart);
     }
-}
+}*/
 
 // load cart items to table
-function loadCartItemsToTable() {
+/*function loadCartItemsToTable() {
     $("#cartTable").empty();
     for (var i = 0; i < cartTMDB.length; i++) {
         let tableRow = `<tr><td>${cartTMDB[i].getICode()}</td><td>${cartTMDB[i].getIName()}</td><td>${cartTMDB[i].getItemPrice()}</td><td>${cartTMDB[i].getBuyQty()}</td><td>${cartTMDB[i].getItemTotal()}</td></tr>`;
         $("#cartTable").append(tableRow);
     }
-}
+}*/
 
 // clear Selected Item Fields
-function clearSelectItemFields() {
+/*function clearSelectItemFields() {
     $("#cmbitemcode").val("");
     $("#txtpoiName").val("");
     $("#txtitemPrice").val("");
@@ -191,10 +183,10 @@ function clearSelectItemFields() {
     $("#txtbuyQty").val("");
     $("#txtbuyQty").css('border', '1px solid #ced4da');
     $("#btnAddToCart").prop('disabled', true);
-}
+}*/
 
 // Calculate Total and No Of Items
-function calculateTotalAndNoOfItems() {
+/*function calculateTotalAndNoOfItems() {
     let ttl = 0;
     for (var i = 0; i < cartTMDB.length; i++) {
         ttl = ttl + cartTMDB[i].getItemTotal();
@@ -202,10 +194,10 @@ function calculateTotalAndNoOfItems() {
     $("#txtTotal").val(ttl + "/=");
     $("#txtBalance").val(ttl + "/=");
     $("#txtNoOfItems").val(cartTMDB.length);
-}
+}*/
 
 // Calculate Balance when Cash paid
-$("#txtCash").keyup(function (event) {
+/*$("#txtCash").keyup(function (event) {
     if (event.key == "Enter") {
         let ttl = 0;
         for (var i = 0; i < cartTMDB.length; i++) {
@@ -221,21 +213,21 @@ $("#txtCash").keyup(function (event) {
             $("#btnPlaceOrder").prop('disabled', false);
         }
     }
-});
+});*/
 
 // Clear Selected item details fields
-$("#btnClearItemFields").click(function () {
+/*$("#btnClearItemFields").click(function () {
     clearSelectItemFields();
-});
+});*/
 
 // Cancel Order
-$("#btnCancelOrder").click(function () {
+/*$("#btnCancelOrder").click(function () {
     clearPlaceOrderForm();
     loadCartItemsToTable();
-});
+});*/
 
 // Clear Place order form
-function clearPlaceOrderForm() {
+/*function clearPlaceOrderForm() {
     $("#cmbSelectCustomerId").val("");
     $("#txtpocName").val("");
     $("#txtpocaddress").val("");
@@ -258,7 +250,7 @@ function clearPlaceOrderForm() {
     $("#btnAddToCart").prop('disabled', true);
 
     $("#btnPlaceOrder").prop('disabled', true);
-}
+}*/
 
 // Place Order
 $("#btnPlaceOrder").click(function () {
@@ -292,7 +284,7 @@ $("#btnPlaceOrder").click(function () {
 });
 
 // Manage Item Quantity
-function manageItemQtyOnHand(itemCode, buyQty) {
+/*function manageItemQtyOnHand(itemCode, buyQty) {
     for (var i = 0; i < itemDB.length; i++) {
         if (itemDB[i].getCode() == itemCode) {
             let tempQty = parseInt(itemDB[i].getQty());
@@ -300,28 +292,28 @@ function manageItemQtyOnHand(itemCode, buyQty) {
             itemDB[i].setQty(qtyOnHand);
         }
     }
-}
+}*/
 
 // Load Order Table
-function loadOrderTable() {
+/*function loadOrderTable() {
     $("#orderTable").empty();
     for (var i = 0; i < orderDB.length; i++) {
         let tableRow = `<tr><td>${orderDB[i].getOrderId()}</td><td>${orderDB[i].getOrderDate()}</td><td>${orderDB[i].getCustomerId()}</td><td>${orderDB[i].getTotal()}</td></tr>`;
         $("#orderTable").append(tableRow);
     }
-}
+}*/
 
 // Load Order Details Table
-function loadOrderDetailTable() {
+/*function loadOrderDetailTable() {
     $("#orderDetailsTable").empty();
     for (var i = 0; i < orderDetailsDB.length; i++) {
         let tableRow = `<tr><td>${orderDetailsDB[i].getOrderId()}</td><td>${orderDetailsDB[i].getItemCode()}</td><td>${orderDetailsDB[i].getItemName()}</td><td>${orderDetailsDB[i].getUnitPrice()}</td><td>${orderDetailsDB[i].getBuyQty()}</td><td>${orderDetailsDB[i].getTotal()}</td></tr>`;
         $("#orderDetailsTable").append(tableRow);
     }
-}
+}*/
 
 // Search Order details from Order Table and Order Detail Table
-function searchOrderByOrderTable(orderId) {
+/*function searchOrderByOrderTable(orderId) {
     let order = searchOrderByOrderDB(orderId);
     var found = false;
     if (order) {
@@ -366,33 +358,33 @@ function searchOrderByOrderDB(searchOID) {
             return orderDB[i];
         }
     }
-}
+}*/
 
 // Search Order
-let regOrderId = /^(O-)[0-9]{4}$/;
+/*let regOrderId = /^(O-)[0-9]{4}$/;
 
 $("#searchOrder").on('shown.bs.modal', function () {
     $(this).find("#txtSearchOrderId").focus();
-});
+});*/
 
 // btn search order function
-$("#btnSearchOrder").click(function (){
+/*$("#btnSearchOrder").click(function (){
    let searchOid = $("#txtSearchOrderId").val();
    searchOrderByOrderDetailTable(searchOid);
    searchOrderByOrderTable(searchOid);
-});
+});*/
 
 // btn clear search field function
-$("#btnClearSearchOrderField").click(function () {
+/*$("#btnClearSearchOrderField").click(function () {
    $("#txtSearchOrderId").val("");
    $("#txtSearchOrderId").css('border','1px solid #ced4da');
    $("#txtSearchOrderId").focus();
    loadOrderTable();
    loadOrderDetailTable();
-});
+});*/
 
 // add validation to search order text field
-$("#txtSearchOrderId").keyup(function (event) {
+/*$("#txtSearchOrderId").keyup(function (event) {
     let searchOid = $("#txtSearchOrderId").val();
     if(regOrderId.test(searchOid)){
         $("#txtSearchOrderId").css('border','2px solid green');
@@ -403,4 +395,4 @@ $("#txtSearchOrderId").keyup(function (event) {
     }else{
         $("#txtSearchOrderId").css('border','2px solid red');
     }
-});
+});*/
