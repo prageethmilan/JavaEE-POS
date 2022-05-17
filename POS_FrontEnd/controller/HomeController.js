@@ -24,13 +24,12 @@ $("#placeOrderForm").click(function () {
     $("#customerPage").css('display', 'none');
     $("#itemPage").css('display', 'none');
     $("#placeOrderPage").css('display', 'block');
-    /*generateOrderId();
+    // generateOrderId();
     setCustomerIdsToComboBox();
-    setItemCodesToComboBox();*/
+    setItemCodesToComboBox();
 });
 
-/*
-function generateOrderId() {
+/*function generateOrderId() {
     if (orderDB.length == 0) {
         $("#txtOrderId").val("O-0001");
     } else if (orderDB.length > 0) {
@@ -47,20 +46,48 @@ function generateOrderId() {
             $("#txtOrderId").val("O-" + tempId);
         }
     }
-}
+}*/
 
 function setCustomerIdsToComboBox() {
-    $("#cmbSelectCustomerId").empty();
+    /*$("#cmbSelectCustomerId").empty();
     $("#cmbSelectCustomerId").append(new Option("-Select Customer-",""));
     for (var i = 0; i < customerDB.length; i++) {
         $("#cmbSelectCustomerId").append(new Option(customerDB[i].getId(),i));
-    }
+    }*/
+    $("#cmbSelectCustomerId").empty();
+    $("#cmbSelectCustomerId").append(new Option("-Select Customer-",""));
+
+    $.ajax({
+        url:"http://localhost:8080/spa/customer?option=GETALL",
+        method:"GET",
+        success:function (res) {
+            var i = 0;
+            for (const customer of res.data) {
+                $("#cmbSelectCustomerId").append(new Option(customer.id,i));
+                i++;
+            }
+        }
+    })
 }
 
 function setItemCodesToComboBox() {
-    $("#cmbitemcode").empty();
+    /*$("#cmbitemcode").empty();
     $("#cmbitemcode").append(new Option("-Select Item-",""));
     for (var i = 0; i < itemDB.length; i++) {
         $("#cmbitemcode").append(new Option(itemDB[i].getCode(),i));
-    }
-}*/
+    }*/
+    $("#cmbitemcode").empty();
+    $("#cmbitemcode").append(new Option("-Select Item-",""));
+
+    $.ajax({
+        url:"http://localhost:8080/spa/item?option=GETALL",
+        method:"GET",
+        success:function (res) {
+            var i = 0;
+            for (const item of res.data) {
+                $("#cmbitemcode").append(new Option(item.code,i));
+                i++;
+            }
+        }
+    })
+}
