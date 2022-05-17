@@ -3,51 +3,55 @@ $(".placeOrderHomeNavi").click(function () {
     $("#customerPage").css('display', 'none');
 });
 
+var cartTMDB = new Array();
+
 $('#txtOrderDate').val(new Date().toISOString().slice(0, 10));
 $("#btnAddToCart").prop('disabled', true);
 $("#btnPlaceOrder").prop('disabled', true);
 let regBuyItemQty = /^[0-9]{1,}$/;
 
 generateOId();
+
 // Generate Order Id
 function generateOId() {
     $.ajax({
-        url:"http://localhost:8080/spa/order?option=GENERATEORDERID",
-        method:"GET",
-        success:function (res) {
+        url: "http://localhost:8080/spa/order?option=GENERATEORDERID",
+        method: "GET",
+        success: function (res) {
             $("#txtOrderId").val(res.orderId);
         }
     })
 }
 
 // Add Listener method to customer id combo box for search customer details
-/*$("#cmbSelectCustomerId").change(function () {
+$("#cmbSelectCustomerId").change(function () {
     var id = $("#cmbSelectCustomerId").find('option:selected').text();
-    var found = false;
-    for (var i = 0; i < customerDB.length; i++) {
-        if (customerDB[i].getId() == id) {
-            $("#txtpocName").val(customerDB[i].getName());
-            $("#txtpocaddress").val(customerDB[i].getAddress());
-            $("#txtpocsalary").val(customerDB[i].getSalary());
-            var code = $("#cmbitemcode").find('option:selected').text();
-            if (code != "-Select Item-" && $("#txtbuyQty").val() != '') {
-                $("#btnAddToCart").prop('disabled', false);
+    $.ajax({
+        url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + id,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#txtpocName").val(res.name);
+                $("#txtpocaddress").val(res.address);
+                $("#txtpocsalary").val(res.salary);
+                var code = $("#cmbitemcode").find('option:selected').text();
+                if (code != "-Select Item-" && $("#txtbuyQty").val() != '') {
+                    $("#btnAddToCart").prop('disabled', false);
+                }
+            } else {
+                $("#txtpocName").val("");
+                $("#txtpocaddress").val("");
+                $("#txtpocsalary").val("");
+                $("#btnAddToCart").prop('disabled', true);
             }
-            found = true;
         }
-    }
-    if (found == false) {
-        $("#txtpocName").val("");
-        $("#txtpocaddress").val("");
-        $("#txtpocsalary").val("");
-        $("#btnAddToCart").prop('disabled', true);
-    }
-});*/
+    })
+});
 
 // Add Listener method to item code combo box for search item details
-/*$("#cmbitemcode").change(function () {
+$("#cmbitemcode").change(function () {
     var code = $("#cmbitemcode").find('option:selected').text();
-    var found = false;
+    /*var found = false;
     for (var i = 0; i < itemDB.length; i++) {
         if (itemDB[i].getCode() == code) {
             $("#txtpoiName").val(itemDB[i].getName());
@@ -80,8 +84,38 @@ function generateOId() {
         $("#txtitemPrice").val("");
         $("#txtqtyOnHand").val("");
         $("#btnAddToCart").prop('disabled', true);
-    }
-});*/
+    }*/
+    $.ajax({
+        url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + code,
+        method:"GET",
+        success:function (res) {
+            if (res.status==200){
+                $("#txtpoiName").val(res.name);
+                $("#txtitemPrice").val(res.unitPrice);
+                let qtyOnHand = parseInt(res.qty);
+
+                var changedTempQty = false;
+                for (var j = 0; j < cartTMDB.length; j++) {
+                    if (cartTMDB[j].getICode() == code) {
+                        let cartQty = cartTMDB[j].getBuyQty();
+                        let tempQty = qtyOnHand - cartQty;
+                        $("#txtqtyOnHand").val(tempQty);
+                        changedTempQty = true;
+                    }
+                }
+
+                if (changedTempQty == false) {
+                    $("#txtqtyOnHand").val(res.qty);
+                }
+
+                var id = $("#cmbSelectCustomerId").find('option:selected').text();
+                if (id != "-Select Customer-" && $("#txtbuyQty").val() != '') {
+                    $("#btnAddToCart").prop('disabled', false);
+                }
+            }
+        }
+    })
+});
 
 // Add Validation for buy qty text field
 /*$("#txtbuyQty").on('keyup', function () {
