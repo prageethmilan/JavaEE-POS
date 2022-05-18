@@ -1,5 +1,7 @@
 package servlets;
 
+import dao.CrudUtil;
+
 import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
