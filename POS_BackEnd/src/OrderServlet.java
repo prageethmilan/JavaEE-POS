@@ -67,17 +67,17 @@ public class OrderServlet extends HttpServlet {
                         double total = orderSet.getDouble(4);
 
                         JsonObjectBuilder orderObj = Json.createObjectBuilder();
-                        orderObj.add("orderId",orderId);
-                        orderObj.add("orderDate",orderDate);
-                        orderObj.add("custId",custId);
-                        orderObj.add("total",total);
+                        orderObj.add("orderId", orderId);
+                        orderObj.add("orderDate", orderDate);
+                        orderObj.add("custId", custId);
+                        orderObj.add("total", total);
                         arrayBuilder.add(orderObj.build());
                     }
 
                     JsonObjectBuilder response = Json.createObjectBuilder();
-                    response.add("status",200);
-                    response.add("message","Done");
-                    response.add("data",arrayBuilder.build());
+                    response.add("status", 200);
+                    response.add("message", "Done");
+                    response.add("data", arrayBuilder.build());
                     writer.print(response.build());
                     break;
 
@@ -94,20 +94,75 @@ public class OrderServlet extends HttpServlet {
                         double total = orderDetailSet.getDouble(6);
 
                         JsonObjectBuilder orderDetail = Json.createObjectBuilder();
-                        orderDetail.add("orderId",orderId);
-                        orderDetail.add("itemCode",itemCode);
-                        orderDetail.add("itemName",itemName);
-                        orderDetail.add("unitPrice",unitPrice);
-                        orderDetail.add("qty",qty);
-                        orderDetail.add("total",total);
+                        orderDetail.add("orderId", orderId);
+                        orderDetail.add("itemCode", itemCode);
+                        orderDetail.add("itemName", itemName);
+                        orderDetail.add("unitPrice", unitPrice);
+                        orderDetail.add("qty", qty);
+                        orderDetail.add("total", total);
                         orderDetailArray.add(orderDetail.build());
                     }
 
                     JsonObjectBuilder builder = Json.createObjectBuilder();
-                    builder.add("status",200);
-                    builder.add("message","Done");
-                    builder.add("data",orderDetailArray.build());
+                    builder.add("status", 200);
+                    builder.add("message", "Done");
+                    builder.add("data", orderDetailArray.build());
                     writer.print(builder.build());
+                    break;
+
+                case "SEARCHORDER":
+                    String orderId = req.getParameter("orderId");
+                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM `Order` WHERE orderId=?");
+                    pstm.setObject(1, orderId);
+                    ResultSet searchOrderSet = pstm.executeQuery();
+
+                    JsonObjectBuilder searchOrder = Json.createObjectBuilder();
+
+                    while (searchOrderSet.next()) {
+                        String oId = searchOrderSet.getString(1);
+                        String oDate = searchOrderSet.getString(2);
+                        String custId = searchOrderSet.getString(3);
+                        double total = searchOrderSet.getDouble(4);
+
+                        searchOrder.add("status",200);
+                        searchOrder.add("orderId",oId);
+                        searchOrder.add("orderDate",oDate);
+                        searchOrder.add("customerId",custId);
+                        searchOrder.add("total",total);
+
+                    }
+
+                    writer.print(searchOrder.build());
+                    break;
+
+                case "SEARCHORDERDETAIL":
+                    String oId = req.getParameter("orderId");
+                    PreparedStatement psm = connection.prepareStatement("SELECT * FROM `Order Detail` WHERE orderId=?");
+                    psm.setObject(1,oId);
+
+                    JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+
+                    ResultSet searchOrderDetailSet = psm.executeQuery();
+
+                    while (searchOrderDetailSet.next()) {
+                        String orId = searchOrderDetailSet.getString(1);
+                        String icode = searchOrderDetailSet.getString(2);
+                        String iname = searchOrderDetailSet.getString(3);
+                        double unitPrice = searchOrderDetailSet.getDouble(4);
+                        int buyQty = searchOrderDetailSet.getInt(5);
+                        double total = searchOrderDetailSet.getDouble(6);
+
+                        JsonObjectBuilder orderDetail = Json.createObjectBuilder();
+                        orderDetail.add("orderId",orId);
+                        orderDetail.add("itemCode",icode);
+                        orderDetail.add("itemName",iname);
+                        orderDetail.add("unitPrice",unitPrice);
+                        orderDetail.add("qty",buyQty);
+                        orderDetail.add("total",total);
+                        jsonArray.add(orderDetail.build());
+                    }
+
+                    writer.print(jsonArray.build());
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -166,17 +221,17 @@ public class OrderServlet extends HttpServlet {
                     preStm.setObject(5, buyQty);
                     preStm.setObject(6, total);
 
-                    if (preStm.executeUpdate()>0){
+                    if (preStm.executeUpdate() > 0) {
                         connection.commit();
                         builder.add("status", 200);
                         builder.add("message", "Place Order Successful");
-                    }else{
+                    } else {
                         connection.rollback();
                         builder.add("status", 400);
                         builder.add("message", "failed");
                     }
                 }
-            }else{
+            } else {
                 connection.rollback();
                 builder.add("status", 400);
                 builder.add("message", "failed");
@@ -214,10 +269,10 @@ public class OrderServlet extends HttpServlet {
             Connection root = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
             PreparedStatement pstm = root.prepareStatement("UPDATE Item SET qtyOnHand=(qtyOnHand-" + qty + ") WHERE code='" + itemCode + "'");
 
-            if (pstm.executeUpdate()>0){
+            if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
-                builder.add("status",200);
-                builder.add("message","Updated");
+                builder.add("status", 200);
+                builder.add("message", "Updated");
                 writer.print(builder.build());
             }
 

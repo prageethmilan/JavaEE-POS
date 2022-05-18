@@ -3,7 +3,7 @@ $(".placeOrderHomeNavi").click(function () {
     $("#customerPage").css('display', 'none');
 });
 
-var cartTMDB = new Array();
+var cartTMDB = [];
 
 $('#txtOrderDate').val(new Date().toISOString().slice(0, 10));
 $("#btnAddToCart").prop('disabled', true);
@@ -89,9 +89,9 @@ $("#cmbitemcode").change(function () {
     }*/
     $.ajax({
         url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + code,
-        method:"GET",
-        success:function (res) {
-            if (res.status==200){
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
                 $("#txtpoiName").val(res.name);
                 $("#txtitemPrice").val(res.unitPrice);
                 let qtyOnHand = parseInt(res.qty);
@@ -316,27 +316,33 @@ $("#btnPlaceOrder").click(function () {
         button: "Ok",
         timer: 2000
     });*/
-    var orderDetails = new Array();
+    var orderDetails = [];
     for (let i = 0; i < cartTMDB.length; i++) {
-        var od = {itemCode:cartTMDB[i].getICode(),itemName:cartTMDB[i].getIName(),unitPrice:cartTMDB[i].getItemPrice(),buyQty:cartTMDB[i].getBuyQty(),total:cartTMDB[i].getItemTotal()}
+        var od = {
+            itemCode: cartTMDB[i].getICode(),
+            itemName: cartTMDB[i].getIName(),
+            unitPrice: cartTMDB[i].getItemPrice(),
+            buyQty: cartTMDB[i].getBuyQty(),
+            total: cartTMDB[i].getItemTotal()
+        }
         orderDetails.push(od);
     }
 
     var order = {
-        orderId:$("#txtOrderId").val(),
-        orderDate:$("#txtOrderDate").val(),
-        customerId:$("#cmbSelectCustomerId").find('option:selected').text(),
-        orderTotal:$("#txtTotal").val().split("/")[0],
-        orderDetails:orderDetails
+        orderId: $("#txtOrderId").val(),
+        orderDate: $("#txtOrderDate").val(),
+        customerId: $("#cmbSelectCustomerId").find('option:selected').text(),
+        orderTotal: $("#txtTotal").val().split("/")[0],
+        orderDetails: orderDetails
     }
     $.ajax({
-        url:"http://localhost:8080/spa/order",
-        method:"POST",
-        data:JSON.stringify(order),
-        success:function (res) {
+        url: "http://localhost:8080/spa/order",
+        method: "POST",
+        data: JSON.stringify(order),
+        success: function (res) {
             for (let i = 0; i < cartTMDB.length; i++) {
-                manageItemQtyOnHand(cartTMDB[i].getICode(),cartTMDB[i].getBuyQty());
-                cartTMDB.splice(i,1);
+                manageItemQtyOnHand(cartTMDB[i].getICode(), cartTMDB[i].getBuyQty());
+                cartTMDB.splice(i, 1);
             }
             clearPlaceOrderForm();
             loadCartItemsToTable();
@@ -360,14 +366,14 @@ $("#btnPlaceOrder").click(function () {
 // Manage Item Quantity
 function manageItemQtyOnHand(itemCode, buyQty) {
     var data = {
-        code:itemCode,
+        code: itemCode,
         qty: buyQty
     }
     $.ajax({
-        url:"http://localhost:8080/spa/order",
-        method:"PUT",
-        data:JSON.stringify(data),
-        success:function (res) {
+        url: "http://localhost:8080/spa/order",
+        method: "PUT",
+        data: JSON.stringify(data),
+        success: function (res) {
             console.log("Updated");
         }
     })
@@ -383,9 +389,9 @@ function loadOrderTable() {
 
     $("#orderTable").empty();
     $.ajax({
-        url:"http://localhost:8080/spa/order?option=GETALLORDERS",
-        method:"GET",
-        success:function (res) {
+        url: "http://localhost:8080/spa/order?option=GETALLORDERS",
+        method: "GET",
+        success: function (res) {
             for (let order of res.data) {
                 let tableRow = `<tr><td>${order.orderId}</td><td>${order.orderDate}</td><td>${order.custId}</td><td>${order.total}</td></tr>`;
                 $("#orderTable").append(tableRow);
@@ -403,9 +409,9 @@ function loadOrderDetailTable() {
     }*/
     $("#orderDetailsTable").empty();
     $.ajax({
-        url:"http://localhost:8080/spa/order?option=GETALLORDERDETAILS",
-        method:"GET",
-        success:function (res) {
+        url: "http://localhost:8080/spa/order?option=GETALLORDERDETAILS",
+        method: "GET",
+        success: function (res) {
             console.log(res.data);
             for (let orderDetail of res.data) {
                 let tableRow = `<tr><td>${orderDetail.orderId}</td><td>${orderDetail.itemCode}</td><td>${orderDetail.itemName}</td><td>${orderDetail.unitPrice}</td><td>${orderDetail.qty}</td><td>${orderDetail.total}</td></tr>`;
@@ -416,86 +422,78 @@ function loadOrderDetailTable() {
 }
 
 // Search Order details from Order Table and Order Detail Table
-/*function searchOrderByOrderTable(orderId) {
-    let order = searchOrderByOrderDB(orderId);
-    var found = false;
-    if (order) {
-        let oid = order.getOrderId();
-        let orderDate = order.getOrderDate();
-        let customerId = order.getCustomerId();
-        let total = order.getTotal();
+function searchOrderByOrderTable(orderId) {
 
-        $("#orderTable").empty();
-
-        let tableRow = `<tr><td>${oid}</td><td>${orderDate}</td><td>${customerId}</td><td>${total}</td></tr>`;
-        $("#orderTable").append(tableRow);
-
-        found = true;
-    }
-    if (found == false) {
-        loadOrderTable();
-        loadOrderDetailTable();
-        swal({
-            title: "Error!",
-            text: "Order Not Found",
-            icon: "warning",
-            button: "Close",
-            timer: 2000
-        });
-    }
+    $.ajax({
+        url: "http://localhost:8080/spa/order?option=SEARCHORDER&orderId=" + orderId,
+        method: "GET",
+        success: function (res) {
+            if (res.status == 200) {
+                $("#orderTable").empty();
+                let tableRow = `<tr><td>${res.orderId}</td><td>${res.orderDate}</td><td>${res.customerId}</td><td>${res.total}</td></tr>`;
+                $("#orderTable").append(tableRow);
+            } else {
+                loadOrderTable();
+                loadOrderDetailTable();
+                swal({
+                    title: "Error!",
+                    text: "Order Not Found",
+                    icon: "warning",
+                    button: "Close",
+                    timer: 2000
+                });
+            }
+        }
+    });
 }
 
 function searchOrderByOrderDetailTable(orderId) {
     $("#orderDetailsTable").empty();
-    for (var i = 0; i < orderDetailsDB.length; i++) {
-        if(orderDetailsDB[i].getOrderId()==orderId){
-            let tableRow = `<tr><td>${orderDetailsDB[i].getOrderId()}</td><td>${orderDetailsDB[i].getItemCode()}</td><td>${orderDetailsDB[i].getItemName()}</td><td>${orderDetailsDB[i].getUnitPrice()}</td><td>${orderDetailsDB[i].getBuyQty()}</td><td>${orderDetailsDB[i].getTotal()}</td></tr>`;
-            $("#orderDetailsTable").append(tableRow);
+    $.ajax({
+        url: "http://localhost:8080/spa/order?option=SEARCHORDERDETAIL&orderId=" + orderId,
+        method: "GET",
+        success: function (res) {
+            for (let orderDetail of res) {
+                let tableRow = `<tr><td>${orderDetail.orderId}</td><td>${orderDetail.itemCode}</td><td>${orderDetail.itemName}</td><td>${orderDetail.unitPrice}</td><td>${orderDetail.qty}</td><td>${orderDetail.total}</td></tr>`;
+                $("#orderDetailsTable").append(tableRow);
+            }
         }
-    }
+    });
 }
 
-function searchOrderByOrderDB(searchOID) {
-    for (var i = 0; i < orderDB.length; i++) {
-        if (orderDB[i].getOrderId() == searchOID) {
-            return orderDB[i];
-        }
-    }
-}*/
-
 // Search Order
-/*let regOrderId = /^(O-)[0-9]{4}$/;
+let regOrderId = /^(O-)[0-9]{4}$/;
 
 $("#searchOrder").on('shown.bs.modal', function () {
     $(this).find("#txtSearchOrderId").focus();
-});*/
+});
 
 // btn search order function
-/*$("#btnSearchOrder").click(function (){
-   let searchOid = $("#txtSearchOrderId").val();
-   searchOrderByOrderDetailTable(searchOid);
-   searchOrderByOrderTable(searchOid);
-});*/
+$("#btnSearchOrder").click(function () {
+    let searchOid = $("#txtSearchOrderId").val();
+    searchOrderByOrderDetailTable(searchOid);
+    searchOrderByOrderTable(searchOid);
+});
 
 // btn clear search field function
-/*$("#btnClearSearchOrderField").click(function () {
-   $("#txtSearchOrderId").val("");
-   $("#txtSearchOrderId").css('border','1px solid #ced4da');
-   $("#txtSearchOrderId").focus();
-   loadOrderTable();
-   loadOrderDetailTable();
-});*/
+$("#btnClearSearchOrderField").click(function () {
+    $("#txtSearchOrderId").val("");
+    $("#txtSearchOrderId").css('border', '1px solid #ced4da');
+    $("#txtSearchOrderId").focus();
+    loadOrderTable();
+    loadOrderDetailTable();
+});
 
 // add validation to search order text field
-/*$("#txtSearchOrderId").keyup(function (event) {
+$("#txtSearchOrderId").keyup(function (event) {
     let searchOid = $("#txtSearchOrderId").val();
-    if(regOrderId.test(searchOid)){
-        $("#txtSearchOrderId").css('border','2px solid green');
-        if(event.key=="Enter"){
+    if (regOrderId.test(searchOid)) {
+        $("#txtSearchOrderId").css('border', '2px solid green');
+        if (event.key == "Enter") {
             searchOrderByOrderDetailTable(searchOid);
             searchOrderByOrderTable(searchOid);
         }
-    }else{
-        $("#txtSearchOrderId").css('border','2px solid red');
+    } else {
+        $("#txtSearchOrderId").css('border', '2px solid red');
     }
-});*/
+});
