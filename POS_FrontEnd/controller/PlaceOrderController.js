@@ -118,12 +118,12 @@ $("#cmbitemcode").change(function () {
 });
 
 // Add Validation for buy qty text field
-/*$("#txtbuyQty").on('keyup', function () {
+$("#txtbuyQty").on('keyup', function () {
     addValidation();
-});*/
+});
 
 // Add Validation to buy qty field and check if comboboxes are empty or not.
-/*function addValidation() {
+function addValidation() {
     var buyQty = $("#txtbuyQty").val();
     if (regBuyItemQty.test(buyQty)) {
         $("#txtbuyQty").css('border', '2px solid green');
@@ -136,10 +136,10 @@ $("#cmbitemcode").change(function () {
         $("#txtbuyQty").css('border', '2px solid red');
         $("#btnAddToCart").prop('disabled', true);
     }
-}*/
+}
 
 // Add items to cart
-/*$("#btnAddToCart").click(function () {
+$("#btnAddToCart").click(function () {
     var qtyOnHand = parseInt($("#txtqtyOnHand").val());
     var buyQty = parseInt($("#txtbuyQty").val());
     if (buyQty <= qtyOnHand) {
@@ -168,9 +168,9 @@ $("#cmbitemcode").change(function () {
             timer: 2000
         });
     }
-});*/
+});
 
-/*function addItemsToCart() {
+function addItemsToCart() {
     var itemCode = $("#cmbitemcode").find('option:selected').text();
     var itemName = $("#txtpoiName").val();
     var itemPrice = $("#txtitemPrice").val();
@@ -197,19 +197,19 @@ $("#cmbitemcode").change(function () {
     if (found == false) {
         cartTMDB.push(cart);
     }
-}*/
+}
 
 // load cart items to table
-/*function loadCartItemsToTable() {
+function loadCartItemsToTable() {
     $("#cartTable").empty();
     for (var i = 0; i < cartTMDB.length; i++) {
         let tableRow = `<tr><td>${cartTMDB[i].getICode()}</td><td>${cartTMDB[i].getIName()}</td><td>${cartTMDB[i].getItemPrice()}</td><td>${cartTMDB[i].getBuyQty()}</td><td>${cartTMDB[i].getItemTotal()}</td></tr>`;
         $("#cartTable").append(tableRow);
     }
-}*/
+}
 
 // clear Selected Item Fields
-/*function clearSelectItemFields() {
+function clearSelectItemFields() {
     $("#cmbitemcode").val("");
     $("#txtpoiName").val("");
     $("#txtitemPrice").val("");
@@ -217,10 +217,10 @@ $("#cmbitemcode").change(function () {
     $("#txtbuyQty").val("");
     $("#txtbuyQty").css('border', '1px solid #ced4da');
     $("#btnAddToCart").prop('disabled', true);
-}*/
+}
 
 // Calculate Total and No Of Items
-/*function calculateTotalAndNoOfItems() {
+function calculateTotalAndNoOfItems() {
     let ttl = 0;
     for (var i = 0; i < cartTMDB.length; i++) {
         ttl = ttl + cartTMDB[i].getItemTotal();
@@ -228,10 +228,10 @@ $("#cmbitemcode").change(function () {
     $("#txtTotal").val(ttl + "/=");
     $("#txtBalance").val(ttl + "/=");
     $("#txtNoOfItems").val(cartTMDB.length);
-}*/
+}
 
 // Calculate Balance when Cash paid
-/*$("#txtCash").keyup(function (event) {
+$("#txtCash").keyup(function (event) {
     if (event.key == "Enter") {
         let ttl = 0;
         for (var i = 0; i < cartTMDB.length; i++) {
@@ -247,21 +247,21 @@ $("#cmbitemcode").change(function () {
             $("#btnPlaceOrder").prop('disabled', false);
         }
     }
-});*/
+});
 
 // Clear Selected item details fields
-/*$("#btnClearItemFields").click(function () {
+$("#btnClearItemFields").click(function () {
     clearSelectItemFields();
-});*/
+});
 
 // Cancel Order
-/*$("#btnCancelOrder").click(function () {
+$("#btnCancelOrder").click(function () {
     clearPlaceOrderForm();
     loadCartItemsToTable();
-});*/
+});
 
 // Clear Place order form
-/*function clearPlaceOrderForm() {
+function clearPlaceOrderForm() {
     $("#cmbSelectCustomerId").val("");
     $("#txtpocName").val("");
     $("#txtpocaddress").val("");
@@ -284,11 +284,11 @@ $("#cmbitemcode").change(function () {
     $("#btnAddToCart").prop('disabled', true);
 
     $("#btnPlaceOrder").prop('disabled', true);
-}*/
+}
 
 // Place Order
 $("#btnPlaceOrder").click(function () {
-    let orderId = $("#txtOrderId").val();
+    /*let orderId = $("#txtOrderId").val();
     let orderDate = $("#txtOrderDate").val();
     let customerId = $("#cmbSelectCustomerId").find('option:selected').text();
     let total = $("#txtTotal").val().split("/")[0];
@@ -313,20 +313,63 @@ $("#btnPlaceOrder").click(function () {
         icon: "success",
         button: "Ok",
         timer: 2000
-    });
+    });*/
+    var orderDetails = new Array();
+    for (let i = 0; i < cartTMDB.length; i++) {
+        var od = {itemCode:cartTMDB[i].getICode(),itemName:cartTMDB[i].getIName(),unitPrice:cartTMDB[i].getItemPrice(),buyQty:cartTMDB[i].getBuyQty(),total:cartTMDB[i].getItemTotal()}
+        orderDetails.push(od);
+    }
+
+    var order = {
+        orderId:$("#txtOrderId").val(),
+        orderDate:$("#txtOrderDate").val(),
+        customerId:$("#cmbSelectCustomerId").find('option:selected').text(),
+        orderTotal:$("#txtTotal").val().split("/")[0],
+        orderDetails:orderDetails
+    }
+    $.ajax({
+        url:"http://localhost:8080/spa/order",
+        method:"POST",
+        data:JSON.stringify(order),
+        success:function (res) {
+            for (let i = 0; i < cartTMDB.length; i++) {
+                manageItemQtyOnHand(cartTMDB[i].getICode(),cartTMDB[i].getBuyQty());
+                cartTMDB.splice(i,1);
+            }
+            clearPlaceOrderForm();
+            loadCartItemsToTable();
+            // loadOrderTable();
+            // loadOrderDetailTable();
+            generateOId();
+
+            swal({
+                title: "Success!",
+                text: "Place Order Successfully",
+                icon: "success",
+                button: "Ok",
+                timer: 2000
+            });
+
+        }
+    })
 
 });
 
 // Manage Item Quantity
-/*function manageItemQtyOnHand(itemCode, buyQty) {
-    for (var i = 0; i < itemDB.length; i++) {
-        if (itemDB[i].getCode() == itemCode) {
-            let tempQty = parseInt(itemDB[i].getQty());
-            let qtyOnHand = tempQty - buyQty;
-            itemDB[i].setQty(qtyOnHand);
-        }
+function manageItemQtyOnHand(itemCode, buyQty) {
+    var data = {
+        code:itemCode,
+        qty: buyQty
     }
-}*/
+    $.ajax({
+        url:"http://localhost:8080/spa/order",
+        method:"PUT",
+        data:JSON.stringify(data),
+        success:function (res) {
+            console.log("Updated");
+        }
+    })
+}
 
 // Load Order Table
 /*function loadOrderTable() {
