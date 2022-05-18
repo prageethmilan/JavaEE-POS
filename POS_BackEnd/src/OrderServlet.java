@@ -56,6 +56,30 @@ public class OrderServlet extends HttpServlet {
                     writer.print(obj.build());
 
                     break;
+
+                case "GETALLORDERS":
+                    ResultSet orderSet = connection.prepareStatement("SELECT * FROM `Order`").executeQuery();
+                    JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+                    while (orderSet.next()) {
+                        String orderId = orderSet.getString(1);
+                        String orderDate = orderSet.getString(2);
+                        String custId = orderSet.getString(3);
+                        double total = orderSet.getDouble(4);
+
+                        JsonObjectBuilder orderObj = Json.createObjectBuilder();
+                        orderObj.add("orderId",orderId);
+                        orderObj.add("orderDate",orderDate);
+                        orderObj.add("custId",custId);
+                        orderObj.add("total",total);
+                        arrayBuilder.add(orderObj.build());
+                    }
+
+                    JsonObjectBuilder response = Json.createObjectBuilder();
+                    response.add("status",200);
+                    response.add("message","Done");
+                    response.add("data",arrayBuilder.build());
+                    writer.print(response.build());
+                    break;
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

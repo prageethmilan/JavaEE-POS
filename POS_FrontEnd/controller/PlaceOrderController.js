@@ -11,6 +11,7 @@ $("#btnPlaceOrder").prop('disabled', true);
 let regBuyItemQty = /^[0-9]{1,}$/;
 
 generateOId();
+loadOrderTable();
 
 // Generate Order Id
 function generateOId() {
@@ -338,7 +339,7 @@ $("#btnPlaceOrder").click(function () {
             }
             clearPlaceOrderForm();
             loadCartItemsToTable();
-            // loadOrderTable();
+            loadOrderTable();
             // loadOrderDetailTable();
             generateOId();
 
@@ -372,13 +373,25 @@ function manageItemQtyOnHand(itemCode, buyQty) {
 }
 
 // Load Order Table
-/*function loadOrderTable() {
-    $("#orderTable").empty();
+function loadOrderTable() {
+    /*$("#orderTable").empty();
     for (var i = 0; i < orderDB.length; i++) {
         let tableRow = `<tr><td>${orderDB[i].getOrderId()}</td><td>${orderDB[i].getOrderDate()}</td><td>${orderDB[i].getCustomerId()}</td><td>${orderDB[i].getTotal()}</td></tr>`;
         $("#orderTable").append(tableRow);
-    }
-}*/
+    }*/
+
+    $("#orderTable").empty();
+    $.ajax({
+        url:"http://localhost:8080/spa/order?option=GETALLORDERS",
+        method:"GET",
+        success:function (res) {
+            for (let order of res.data) {
+                let tableRow = `<tr><td>${order.orderId}</td><td>${order.orderDate}</td><td>${order.custId}</td><td>${order.total}</td></tr>`;
+                $("#orderTable").append(tableRow);
+            }
+        }
+    })
+}
 
 // Load Order Details Table
 /*function loadOrderDetailTable() {
