@@ -12,6 +12,7 @@ let regBuyItemQty = /^[0-9]{1,}$/;
 
 generateOId();
 loadOrderTable();
+loadOrderDetailTable();
 
 // Generate Order Id
 function generateOId() {
@@ -394,13 +395,25 @@ function loadOrderTable() {
 }
 
 // Load Order Details Table
-/*function loadOrderDetailTable() {
-    $("#orderDetailsTable").empty();
+function loadOrderDetailTable() {
+    /*$("#orderDetailsTable").empty();
     for (var i = 0; i < orderDetailsDB.length; i++) {
         let tableRow = `<tr><td>${orderDetailsDB[i].getOrderId()}</td><td>${orderDetailsDB[i].getItemCode()}</td><td>${orderDetailsDB[i].getItemName()}</td><td>${orderDetailsDB[i].getUnitPrice()}</td><td>${orderDetailsDB[i].getBuyQty()}</td><td>${orderDetailsDB[i].getTotal()}</td></tr>`;
         $("#orderDetailsTable").append(tableRow);
-    }
-}*/
+    }*/
+    $("#orderDetailsTable").empty();
+    $.ajax({
+        url:"http://localhost:8080/spa/order?option=GETALLORDERDETAILS",
+        method:"GET",
+        success:function (res) {
+            console.log(res.data);
+            for (let orderDetail of res.data) {
+                let tableRow = `<tr><td>${orderDetail.orderId}</td><td>${orderDetail.itemCode}</td><td>${orderDetail.itemName}</td><td>${orderDetail.unitPrice}</td><td>${orderDetail.qty}</td><td>${orderDetail.total}</td></tr>`;
+                $("#orderDetailsTable").append(tableRow);
+            }
+        }
+    })
+}
 
 // Search Order details from Order Table and Order Detail Table
 /*function searchOrderByOrderTable(orderId) {
