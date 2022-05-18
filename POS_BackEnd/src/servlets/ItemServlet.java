@@ -1,3 +1,5 @@
+package servlets;
+
 import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
