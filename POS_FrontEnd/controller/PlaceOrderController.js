@@ -347,7 +347,7 @@ $("#btnPlaceOrder").click(function () {
             clearPlaceOrderForm();
             loadCartItemsToTable();
             loadOrderTable();
-            // loadOrderDetailTable();
+            loadOrderDetailTable();
             generateOId();
 
             swal({
