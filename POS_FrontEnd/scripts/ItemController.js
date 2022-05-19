@@ -471,7 +471,6 @@ $("#btnAddItem").click(function () {
     let res = confirm("Do you want to add this item?");
     if (res) {
         addItem();
-        // genarateItemCode();
     }
 });
 
@@ -552,7 +551,6 @@ $("#btnDeleteItem").click(function () {
     let res = confirm("Do you want to delete this item?");
     if (res) {
         deleteItem();
-        // loadAllItems();
     }
 });
 

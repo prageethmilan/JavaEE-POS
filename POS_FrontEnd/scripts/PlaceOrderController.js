@@ -53,40 +53,6 @@ $("#cmbSelectCustomerId").change(function () {
 // Add Listener method to item code combo box for search item details
 $("#cmbitemcode").change(function () {
     var code = $("#cmbitemcode").find('option:selected').text();
-    /*var found = false;
-    for (var i = 0; i < itemDB.length; i++) {
-        if (itemDB[i].getCode() == code) {
-            $("#txtpoiName").val(itemDB[i].getName());
-            $("#txtitemPrice").val(itemDB[i].getUnitPrice());
-            let qtyOnHand = parseInt(itemDB[i].getQty());
-
-            var changedTempQty = false;
-            for (var j = 0; j < cartTMDB.length; j++) {
-                if (cartTMDB[j].getICode() == code) {
-                    let cartQty = cartTMDB[j].getBuyQty();
-                    let tempQty = qtyOnHand - cartQty;
-                    $("#txtqtyOnHand").val(tempQty);
-                    changedTempQty = true;
-                }
-            }
-
-            if (changedTempQty == false) {
-                $("#txtqtyOnHand").val(itemDB[i].getQty());
-            }
-
-            var id = $("#cmbSelectCustomerId").find('option:selected').text();
-            if (id != "-Select Customer-" && $("#txtbuyQty").val() != '') {
-                $("#btnAddToCart").prop('disabled', false);
-            }
-            found = true;
-        }
-    }
-    if (found == false) {
-        $("#txtpoiName").val("");
-        $("#txtitemPrice").val("");
-        $("#txtqtyOnHand").val("");
-        $("#btnAddToCart").prop('disabled', true);
-    }*/
     $.ajax({
         url: "http://localhost:8080/spa/item?option=SEARCH&ItemCode=" + code,
         method: "GET",
@@ -290,32 +256,6 @@ function clearPlaceOrderForm() {
 
 // Place Order
 $("#btnPlaceOrder").click(function () {
-    /*let orderId = $("#txtOrderId").val();
-    let orderDate = $("#txtOrderDate").val();
-    let customerId = $("#cmbSelectCustomerId").find('option:selected').text();
-    let total = $("#txtTotal").val().split("/")[0];
-
-    var order = new OrderDTO(orderId, orderDate, customerId, total);
-    orderDB.push(order);
-
-    for (var i = 0; i < cartTMDB.length; i++) {
-        var orderDetail = new OrderDetailsDTO(orderId, cartTMDB[i].getICode(), cartTMDB[i].getIName(), cartTMDB[i].getItemPrice(), cartTMDB[i].getBuyQty(), cartTMDB[i].getItemTotal());
-        manageItemQtyOnHand(cartTMDB[i].getICode(), cartTMDB[i].getBuyQty());
-        orderDetailsDB.push(orderDetail);
-    }
-    clearPlaceOrderForm();
-    loadCartItemsToTable();
-    loadOrderTable();
-    loadOrderDetailTable();
-    generateOId();
-
-    swal({
-        title: "Success!",
-        text: "Place Order Successfully",
-        icon: "success",
-        button: "Ok",
-        timer: 2000
-    });*/
     var orderDetails = [];
     for (let i = 0; i < cartTMDB.length; i++) {
         var od = {
@@ -382,11 +322,6 @@ function manageItemQtyOnHand(itemCode, buyQty) {
 
 // Load Order Table
 function loadOrderTable() {
-    /*$("#orderTable").empty();
-    for (var i = 0; i < orderDB.length; i++) {
-        let tableRow = `<tr><td>${orderDB[i].getOrderId()}</td><td>${orderDB[i].getOrderDate()}</td><td>${orderDB[i].getCustomerId()}</td><td>${orderDB[i].getTotal()}</td></tr>`;
-        $("#orderTable").append(tableRow);
-    }*/
 
     $("#orderTable").empty();
     $.ajax({
@@ -403,11 +338,6 @@ function loadOrderTable() {
 
 // Load Order Details Table
 function loadOrderDetailTable() {
-    /*$("#orderDetailsTable").empty();
-    for (var i = 0; i < orderDetailsDB.length; i++) {
-        let tableRow = `<tr><td>${orderDetailsDB[i].getOrderId()}</td><td>${orderDetailsDB[i].getItemCode()}</td><td>${orderDetailsDB[i].getItemName()}</td><td>${orderDetailsDB[i].getUnitPrice()}</td><td>${orderDetailsDB[i].getBuyQty()}</td><td>${orderDetailsDB[i].getTotal()}</td></tr>`;
-        $("#orderDetailsTable").append(tableRow);
-    }*/
     $("#orderDetailsTable").empty();
     $.ajax({
         url: "http://localhost:8080/spa/order?option=GETALLORDERDETAILS",

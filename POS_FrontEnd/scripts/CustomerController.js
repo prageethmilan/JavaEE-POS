@@ -282,11 +282,6 @@ function addCustomer() {
 // Search Update Customer
 
 function searchUpdateCustomer(searchId) {
-    /*for (var i = 0; i < customerDB.length; i++) {
-        if (customerDB[i].getId() == searchId) {
-            return customerDB[i];
-        }
-    }*/
     $.ajax({
         url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
         method: "GET",
@@ -388,13 +383,6 @@ function updateCustomer() {
 
 function deleteCustomer() {
     let cusId = $("#txtSearchCId").val();
-    /*for (var i = 0; i < customerDB.length; i++) {
-        if (customerDB[i].getId() == searchCustomerId) {
-            customerDB.splice(i, 1);
-            clearDeleteCustomerFields();
-            $("#btnDeleteCustomer").prop('disabled', true);
-        }
-    }*/
     $.ajax({
         url: "http://localhost:8080/spa/customer?CusID=" + cusId,
         method: "DELETE",
@@ -484,7 +472,6 @@ $("#btnRegisterCustomer").click(function () {
     let res = confirm("Do you want to add this customer?");
     if (res) {
         addCustomer();
-        /*generateCustomerId();*/
     }
 });
 
