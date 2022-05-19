@@ -408,7 +408,7 @@ function loadAllItems() {
         url: "http://localhost:8080/spa/item?option=GETALL",
         method: "GET",
         success: function (resp) {
-            for (const item of resp.data) {
+            for (const item of resp) {
                 let row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.unitPrice}</td><td>${item.qty}</td></tr>`;
                 $("#itemTable").append(row);
             }

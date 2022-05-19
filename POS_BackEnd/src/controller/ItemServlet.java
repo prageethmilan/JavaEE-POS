@@ -1,6 +1,13 @@
 package controller;
 
-import javax.json.*;
+import dao.DAOFactory;
+import dao.custom.ItemDAO;
+import entity.Item;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.SQLException;
 
 /**
  * @author : M-Prageeth
@@ -17,67 +24,38 @@ import java.sql.*;
 
 @WebServlet(urlPatterns = "/item")
 public class ItemServlet extends HttpServlet {
+    ItemDAO itemDAO = (ItemDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.ITEM);
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String option = req.getParameter("option");
             resp.setContentType("application/json");
 
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
             PrintWriter writer = resp.getWriter();
 
-            resp.addHeader("Access-Control-Allow-Origin", "*");
 
             switch (option) {
                 case "GETALL":
-                    ResultSet rst = connection.prepareStatement("SELECT * FROM Item").executeQuery();
-                    JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-                    while (rst.next()) {
-                        String code = rst.getString(1);
-                        String name = rst.getString(2);
-                        double unitPrice = rst.getDouble(3);
-                        int qty = rst.getInt(4);
-
-                        JsonObjectBuilder obj = Json.createObjectBuilder();
-                        obj.add("code", code);
-                        obj.add("name", name);
-                        obj.add("unitPrice", unitPrice);
-                        obj.add("qty", qty);
-
-                        arrayBuilder.add(obj.build());
-                    }
-
-                    JsonObjectBuilder response = Json.createObjectBuilder();
-                    response.add("status", 200);
-                    response.add("message", "Done");
-                    response.add("data", arrayBuilder.build());
-                    writer.print(response.build());
+                    writer.print(itemDAO.getAll());
 
                     break;
                 case "SEARCH":
                     String itemCode = req.getParameter("ItemCode");
-                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Item WHERE code=?");
-                    pstm.setObject(1, itemCode);
-                    ResultSet searchSet = pstm.executeQuery();
+
+                    Item item = itemDAO.search(itemCode);
 
                     JsonObjectBuilder searchItem = Json.createObjectBuilder();
 
-
-                    while (searchSet.next()) {
-                        String code = searchSet.getString(1);
-                        String name = searchSet.getString(2);
-                        double unitPrice = searchSet.getDouble(3);
-                        int qty = searchSet.getInt(4);
-
+                    if (item != null) {
                         searchItem.add("status", 200);
-                        searchItem.add("code", code);
-                        searchItem.add("name", name);
-                        searchItem.add("unitPrice", unitPrice);
-                        searchItem.add("qty", qty);
-
+                        searchItem.add("code", item.getCode());
+                        searchItem.add("name", item.getName());
+                        searchItem.add("unitPrice", item.getUnitPrice());
+                        searchItem.add("qty", item.getQty());
+                    } else {
+                        searchItem.add("status", 400);
                     }
 
                     writer.print(searchItem.build());
@@ -85,31 +63,8 @@ public class ItemServlet extends HttpServlet {
                     break;
 
                 case "GENERATEITEMCODE":
-                    ResultSet codeSet = connection.prepareStatement("SELECT code FROM Item ORDER BY code DESC LIMIT 1").executeQuery();
-                    JsonObjectBuilder obj = Json.createObjectBuilder();
-                    if (codeSet.next()) {
-                        int tempCode = Integer.parseInt(codeSet.getString(1).split("-")[1]);
-                        tempCode = tempCode + 1;
-                        if (tempCode <= 9) {
-                            String code = "I00-000" + tempCode;
-                            obj.add("code", code);
-                        } else if (tempCode <= 99) {
-                            String code = "I00-00" + tempCode;
-                            obj.add("code", code);
-                        } else if (tempCode <= 999) {
-                            String code = "I00-0" + tempCode;
-                            obj.add("code", code);
-                        } else if (tempCode <= 9999) {
-                            String code = "I00-" + tempCode;
-                            obj.add("code", code);
-                        }
-                    }else{
-                        String code = "I00-0001";
-                        obj.add("code",code);
-                    }
 
-                    writer.print(obj.build());
-
+                    writer.print(itemDAO.generateCode());
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -126,21 +81,16 @@ public class ItemServlet extends HttpServlet {
         double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
         int itemQty = Integer.parseInt(req.getParameter("itemQty"));
 
+        Item item = new Item(itemCode, itemName, unitPrice, itemQty);
+
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Item VALUES (?,?,?,?)");
-            pstm.setObject(1, itemCode);
-            pstm.setObject(2, itemName);
-            pstm.setObject(3, unitPrice);
-            pstm.setObject(4, itemQty);
+            boolean add = itemDAO.add(item);
 
-            if (pstm.executeUpdate() > 0) {
+            if (add) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 resp.setStatus(HttpServletResponse.SC_CREATED);
                 response.add("status", 200);
@@ -178,23 +128,18 @@ public class ItemServlet extends HttpServlet {
         double unitPrice = Double.parseDouble(jsonObject.getString("unitPrice"));
         int qty = Integer.parseInt(jsonObject.getString("qty"));
 
+        Item item = new Item(code, name, unitPrice, qty);
+
         PrintWriter writer = resp.getWriter();
 
         resp.setContentType("application/json");
 
-        resp.addHeader("Access-Control-Allow-Origin", "*");
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?");
-            pstm.setObject(1, name);
-            pstm.setObject(2, unitPrice);
-            pstm.setObject(3, qty);
-            pstm.setObject(4, code);
+            boolean update = itemDAO.update(item);
 
-            if (pstm.executeUpdate() > 0) {
+            if (update) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 200);
                 response.add("message", "Successfully Updated");
@@ -228,16 +173,11 @@ public class ItemServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
 
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
-            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Item WHERE code=?");
-            pstm.setObject(1, itemCode);
+            boolean delete = itemDAO.delete(itemCode);
 
-            if (pstm.executeUpdate() > 0) {
+            if (delete) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
                 builder.add("status", 200);
                 builder.add("data", "");
@@ -265,12 +205,5 @@ public class ItemServlet extends HttpServlet {
             objectBuilder.add("data", throwables.getLocalizedMessage());
             writer.print(objectBuilder.build());
         }
-    }
-
-    @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.addHeader("Access-Control-Allow-Methods", "DELETE, PUT");
-        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }

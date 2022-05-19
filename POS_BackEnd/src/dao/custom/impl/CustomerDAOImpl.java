@@ -24,7 +24,7 @@ public class CustomerDAOImpl implements CustomerDAO {
             customerObj.add("name", customer.getName());
             customerObj.add("address", customer.getAddress());
             customerObj.add("salary", customer.getSalary());
-            customerArray.add(customerObj);
+            customerArray.add(customerObj.build());
         }
 
         return customerArray.build();
