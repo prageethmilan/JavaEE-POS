@@ -1,4 +1,4 @@
-package servlets;
+package controller;
 
 import javax.json.*;
 import javax.servlet.ServletException;

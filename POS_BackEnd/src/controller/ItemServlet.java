@@ -1,6 +1,4 @@
-package servlets;
-
-import dao.CrudUtil;
+package controller;
 
 import javax.json.*;
 import javax.servlet.ServletException;
@@ -14,16 +12,17 @@ import java.sql.*;
 
 /**
  * @author : M-Prageeth
- * @created : 10/05/2022 - 8:57 AM
+ * @created : 10/05/2022 - 8:58 AM
  **/
 
-@WebServlet(urlPatterns = "/customer")
-public class CustomerServlet extends HttpServlet {
+@WebServlet(urlPatterns = "/item")
+public class ItemServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String option = req.getParameter("option");
             resp.setContentType("application/json");
+
 
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
@@ -33,20 +32,20 @@ public class CustomerServlet extends HttpServlet {
 
             switch (option) {
                 case "GETALL":
-                    ResultSet rst = connection.prepareStatement("SELECT * FROM Customer").executeQuery();
+                    ResultSet rst = connection.prepareStatement("SELECT * FROM Item").executeQuery();
                     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
                     while (rst.next()) {
-                        String id = rst.getString(1);
+                        String code = rst.getString(1);
                         String name = rst.getString(2);
-                        String address = rst.getString(3);
-                        double salary = rst.getDouble(4);
+                        double unitPrice = rst.getDouble(3);
+                        int qty = rst.getInt(4);
 
                         JsonObjectBuilder obj = Json.createObjectBuilder();
-                        obj.add("id", id);
+                        obj.add("code", code);
                         obj.add("name", name);
-                        obj.add("address", address);
-                        obj.add("salary", salary);
+                        obj.add("unitPrice", unitPrice);
+                        obj.add("qty", qty);
 
                         arrayBuilder.add(obj.build());
                     }
@@ -56,57 +55,61 @@ public class CustomerServlet extends HttpServlet {
                     response.add("message", "Done");
                     response.add("data", arrayBuilder.build());
                     writer.print(response.build());
+
                     break;
                 case "SEARCH":
-                    String custId = req.getParameter("CusID");
-                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Customer WHERE id=?");
-                    pstm.setObject(1, custId);
+                    String itemCode = req.getParameter("ItemCode");
+                    PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Item WHERE code=?");
+                    pstm.setObject(1, itemCode);
                     ResultSet searchSet = pstm.executeQuery();
 
-                    JsonObjectBuilder searchCustomer = Json.createObjectBuilder();
+                    JsonObjectBuilder searchItem = Json.createObjectBuilder();
+
 
                     while (searchSet.next()) {
-                        String id = searchSet.getString(1);
+                        String code = searchSet.getString(1);
                         String name = searchSet.getString(2);
-                        String address = searchSet.getString(3);
-                        double salary = searchSet.getDouble(4);
+                        double unitPrice = searchSet.getDouble(3);
+                        int qty = searchSet.getInt(4);
 
-                        searchCustomer.add("status", 200);
-                        searchCustomer.add("id", id);
-                        searchCustomer.add("name", name);
-                        searchCustomer.add("address", address);
-                        searchCustomer.add("salary", salary);
+                        searchItem.add("status", 200);
+                        searchItem.add("code", code);
+                        searchItem.add("name", name);
+                        searchItem.add("unitPrice", unitPrice);
+                        searchItem.add("qty", qty);
 
                     }
 
-                    writer.print(searchCustomer.build());
+                    writer.print(searchItem.build());
 
                     break;
-                case "GENERATECUSTID":
-                    ResultSet idSet = connection.prepareStatement("SELECT id FROM Customer ORDER BY id DESC LIMIT 1").executeQuery();
+
+                case "GENERATEITEMCODE":
+                    ResultSet codeSet = connection.prepareStatement("SELECT code FROM Item ORDER BY code DESC LIMIT 1").executeQuery();
                     JsonObjectBuilder obj = Json.createObjectBuilder();
-                    if (idSet.next()) {
-                        int tempId = Integer.parseInt(idSet.getString(1).split("-")[1]);
-                        tempId = tempId + 1;
-                        if (tempId <= 9) {
-                            String id = "C00-000" + tempId;
-                            obj.add("id", id);
-                        } else if (tempId <= 99) {
-                            String id = "C00-00" + tempId;
-                            obj.add("id", id);
-                        } else if (tempId <= 999) {
-                            String id = "C00-0" + tempId;
-                            obj.add("id", id);
-                        } else if (tempId <= 9999) {
-                            String id = "C00-" + tempId;
-                            obj.add("id", id);
+                    if (codeSet.next()) {
+                        int tempCode = Integer.parseInt(codeSet.getString(1).split("-")[1]);
+                        tempCode = tempCode + 1;
+                        if (tempCode <= 9) {
+                            String code = "I00-000" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 99) {
+                            String code = "I00-00" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 999) {
+                            String code = "I00-0" + tempCode;
+                            obj.add("code", code);
+                        } else if (tempCode <= 9999) {
+                            String code = "I00-" + tempCode;
+                            obj.add("code", code);
                         }
                     }else{
-                        String id = "C00-0001";
-                        obj.add("id",id);
+                        String code = "I00-0001";
+                        obj.add("code",code);
                     }
 
                     writer.print(obj.build());
+
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -114,15 +117,14 @@ public class CustomerServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("customerID");
-        String name = req.getParameter("customerName");
-        String address = req.getParameter("customerAddress");
-        double salary = Double.parseDouble(req.getParameter("customerSalary"));
+        String itemCode = req.getParameter("itemCode");
+        String itemName = req.getParameter("itemName");
+        double unitPrice = Double.parseDouble(req.getParameter("unitPrice"));
+        int itemQty = Integer.parseInt(req.getParameter("itemQty"));
 
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
@@ -132,11 +134,11 @@ public class CustomerServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer Values (?,?,?,?)");
-            pstm.setObject(1, id);
-            pstm.setObject(2, name);
-            pstm.setObject(3, address);
-            pstm.setObject(4, salary);
+            PreparedStatement pstm = connection.prepareStatement("INSERT INTO Item VALUES (?,?,?,?)");
+            pstm.setObject(1, itemCode);
+            pstm.setObject(2, itemName);
+            pstm.setObject(3, unitPrice);
+            pstm.setObject(4, itemQty);
 
             if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
@@ -171,10 +173,10 @@ public class CustomerServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
-        String id = jsonObject.getString("id");
+        String code = jsonObject.getString("code");
         String name = jsonObject.getString("name");
-        String address = jsonObject.getString("address");
-        double salary = Double.parseDouble(jsonObject.getString("salary"));
+        double unitPrice = Double.parseDouble(jsonObject.getString("unitPrice"));
+        int qty = Integer.parseInt(jsonObject.getString("qty"));
 
         PrintWriter writer = resp.getWriter();
 
@@ -185,11 +187,12 @@ public class CustomerServlet extends HttpServlet {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?,address=?,salary=? WHERE id=?");
+
+            PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?");
             pstm.setObject(1, name);
-            pstm.setObject(2, address);
-            pstm.setObject(3, salary);
-            pstm.setObject(4, id);
+            pstm.setObject(2, unitPrice);
+            pstm.setObject(3, qty);
+            pstm.setObject(4, code);
 
             if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
@@ -204,7 +207,6 @@ public class CustomerServlet extends HttpServlet {
                 response.add("data", "");
                 writer.print(response.build());
             }
-
         } catch (ClassNotFoundException e) {
             JsonObjectBuilder response = Json.createObjectBuilder();
             response.add("status", 500);
@@ -222,7 +224,7 @@ public class CustomerServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String cusID = req.getParameter("CusID");
+        String itemCode = req.getParameter("itemCode");
         PrintWriter writer = resp.getWriter();
         resp.setContentType("application/json");
 
@@ -232,8 +234,8 @@ public class CustomerServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/JavaEEPOS", "root", "1234");
 
-            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
-            pstm.setObject(1, cusID);
+            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Item WHERE code=?");
+            pstm.setObject(1, itemCode);
 
             if (pstm.executeUpdate() > 0) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();

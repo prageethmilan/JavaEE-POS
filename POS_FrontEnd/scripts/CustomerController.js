@@ -291,6 +291,7 @@ function searchUpdateCustomer(searchId) {
         url: "http://localhost:8080/spa/customer?option=SEARCH&CusID=" + searchId,
         method: "GET",
         success: function (res) {
+            console.log(res.status)
             if (res.status == 200) {
                 $("#txtCName").val(res.name);
                 $("#txtCaddress").val(res.address);
@@ -420,7 +421,7 @@ function loadAllCustomers() {
         url: "http://localhost:8080/spa/customer?option=GETALL",
         method: "GET",
         success: function (resp) {
-            for (const customer of resp.data) {
+            for (const customer of resp) {
                 let row = `<tr><td>${customer.id}</td><td>${customer.name}</td><td>${customer.address}</td><td>${customer.salary}</td></tr>`;
                 $("#customerTable").append(row);
             }
