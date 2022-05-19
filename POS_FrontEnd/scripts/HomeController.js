@@ -37,7 +37,7 @@ function setCustomerIdsToComboBox() {
         method:"GET",
         success:function (res) {
             var i = 0;
-            for (const customer of res.data) {
+            for (const customer of res) {
                 $("#cmbSelectCustomerId").append(new Option(customer.id,i));
                 i++;
             }
@@ -54,7 +54,7 @@ function setItemCodesToComboBox() {
         method:"GET",
         success:function (res) {
             var i = 0;
-            for (const item of res.data) {
+            for (const item of res) {
                 $("#cmbitemcode").append(new Option(item.code,i));
                 i++;
             }

@@ -12,4 +12,5 @@ import java.sql.SQLException;
  **/
 public interface ItemDAO extends CrudDAO<Item, String> {
     JsonObject generateCode() throws SQLException, ClassNotFoundException;
+    boolean updateQty(int qty,String code) throws SQLException, ClassNotFoundException;
 }

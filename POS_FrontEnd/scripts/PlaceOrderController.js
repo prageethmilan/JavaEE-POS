@@ -340,24 +340,25 @@ $("#btnPlaceOrder").click(function () {
         method: "POST",
         data: JSON.stringify(order),
         success: function (res) {
-            for (let i = 0; i < cartTMDB.length; i++) {
-                manageItemQtyOnHand(cartTMDB[i].getICode(), cartTMDB[i].getBuyQty());
-                cartTMDB.splice(i, 1);
+            if (res.boolean==true){
+                for (let i = 0; i < cartTMDB.length; i++) {
+                    manageItemQtyOnHand(cartTMDB[i].getICode(), cartTMDB[i].getBuyQty());
+                    cartTMDB.splice(i, 1);
+                }
+                clearPlaceOrderForm();
+                loadCartItemsToTable();
+                loadOrderTable();
+                loadOrderDetailTable();
+                generateOId();
+
+                swal({
+                    title: "Success!",
+                    text: "Place Order Successfully",
+                    icon: "success",
+                    button: "Ok",
+                    timer: 2000
+                });
             }
-            clearPlaceOrderForm();
-            loadCartItemsToTable();
-            loadOrderTable();
-            loadOrderDetailTable();
-            generateOId();
-
-            swal({
-                title: "Success!",
-                text: "Place Order Successfully",
-                icon: "success",
-                button: "Ok",
-                timer: 2000
-            });
-
         }
     })
 
@@ -392,7 +393,7 @@ function loadOrderTable() {
         url: "http://localhost:8080/spa/order?option=GETALLORDERS",
         method: "GET",
         success: function (res) {
-            for (let order of res.data) {
+            for (let order of res) {
                 let tableRow = `<tr><td>${order.orderId}</td><td>${order.orderDate}</td><td>${order.custId}</td><td>${order.total}</td></tr>`;
                 $("#orderTable").append(tableRow);
             }
@@ -413,7 +414,7 @@ function loadOrderDetailTable() {
         method: "GET",
         success: function (res) {
             console.log(res.data);
-            for (let orderDetail of res.data) {
+            for (let orderDetail of res) {
                 let tableRow = `<tr><td>${orderDetail.orderId}</td><td>${orderDetail.itemCode}</td><td>${orderDetail.itemName}</td><td>${orderDetail.unitPrice}</td><td>${orderDetail.qty}</td><td>${orderDetail.total}</td></tr>`;
                 $("#orderDetailsTable").append(tableRow);
             }
