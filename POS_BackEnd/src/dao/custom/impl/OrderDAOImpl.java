@@ -2,7 +2,6 @@ package dao.custom.impl;
 
 import dao.CrudUtil;
 import dao.custom.OrderDAO;
-import entity.Item;
 import entity.Order;
 
 import javax.json.*;
@@ -18,13 +17,13 @@ public class OrderDAOImpl implements OrderDAO {
     public JsonArray getAll() throws SQLException, ClassNotFoundException {
         ResultSet rst = CrudUtil.executeQuery("SELECT * FROM `Order`");
         JsonArrayBuilder orderArray = Json.createArrayBuilder();
-        while (rst.next()){
-            Order order = new Order(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4));
+        while (rst.next()) {
+            Order order = new Order(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4));
             JsonObjectBuilder obj = Json.createObjectBuilder();
-            obj.add("orderId",order.getOrderId());
-            obj.add("orderDate",order.getOrderDate());
-            obj.add("custId",order.getCustomerId());
-            obj.add("total",order.getTotal());
+            obj.add("orderId", order.getOrderId());
+            obj.add("orderDate", order.getOrderDate());
+            obj.add("custId", order.getCustomerId());
+            obj.add("total", order.getTotal());
             orderArray.add(obj.build());
         }
         return orderArray.build();

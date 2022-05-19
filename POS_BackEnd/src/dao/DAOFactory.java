@@ -12,25 +12,25 @@ import dao.custom.impl.OrderDetailDAOImpl;
 public class DAOFactory {
     private static DAOFactory daoFactory;
 
-    private DAOFactory(){
+    private DAOFactory() {
 
     }
 
-    public static DAOFactory getDaoFactory(){
-        if (daoFactory==null){
+    public static DAOFactory getDaoFactory() {
+        if (daoFactory == null) {
             daoFactory = new DAOFactory();
         }
         return daoFactory;
     }
 
-    public SuperDAO getDAO(DAOTypes daoTypes){
-        switch (daoTypes){
+    public SuperDAO getDAO(DAOTypes daoTypes) {
+        switch (daoTypes) {
             case CUSTOMER:
                 return new CustomerDAOImpl();
             case ITEM:
                 return new ItemDAOImpl();
             case ORDER:
-                return  new OrderDAOImpl();
+                return new OrderDAOImpl();
             case ORDERDETAIL:
                 return new OrderDetailDAOImpl();
             default:
@@ -38,7 +38,7 @@ public class DAOFactory {
         }
     }
 
-    public enum DAOTypes{
-        CUSTOMER,ITEM,ORDER,ORDERDETAIL
+    public enum DAOTypes {
+        CUSTOMER, ITEM, ORDER, ORDERDETAIL
     }
 }

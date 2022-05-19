@@ -31,23 +31,17 @@ public class ItemServlet extends HttpServlet {
         try {
             String option = req.getParameter("option");
             resp.setContentType("application/json");
-
             PrintWriter writer = resp.getWriter();
-
 
             switch (option) {
                 case "GETALL":
-
                     writer.print(itemDAO.getAll());
-
                     break;
                 case "SEARCH":
                     String itemCode = req.getParameter("ItemCode");
-
                     Item item = itemDAO.search(itemCode);
 
                     JsonObjectBuilder searchItem = Json.createObjectBuilder();
-
                     if (item != null) {
                         searchItem.add("status", 200);
                         searchItem.add("code", item.getCode());
@@ -57,13 +51,9 @@ public class ItemServlet extends HttpServlet {
                     } else {
                         searchItem.add("status", 400);
                     }
-
                     writer.print(searchItem.build());
-
                     break;
-
                 case "GENERATEITEMCODE":
-
                     writer.print(itemDAO.generateCode());
                     break;
             }
@@ -87,9 +77,7 @@ public class ItemServlet extends HttpServlet {
         resp.setContentType("application/json");
 
         try {
-
             boolean add = itemDAO.add(item);
-
             if (add) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 resp.setStatus(HttpServletResponse.SC_CREATED);
@@ -134,11 +122,8 @@ public class ItemServlet extends HttpServlet {
 
         resp.setContentType("application/json");
 
-
         try {
-
             boolean update = itemDAO.update(item);
-
             if (update) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 200);
@@ -174,9 +159,7 @@ public class ItemServlet extends HttpServlet {
         resp.setContentType("application/json");
 
         try {
-
             boolean delete = itemDAO.delete(itemCode);
-
             if (delete) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
                 builder.add("status", 200);

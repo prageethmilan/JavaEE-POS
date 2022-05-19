@@ -31,23 +31,17 @@ public class CustomerServlet extends HttpServlet {
         try {
             String option = req.getParameter("option");
             resp.setContentType("application/json");
-
             PrintWriter writer = resp.getWriter();
-
 
             switch (option) {
                 case "GETALL":
-
                     writer.print(customerDAO.getAll());
-
                     break;
                 case "SEARCH":
                     String custId = req.getParameter("CusID");
-
                     Customer customer = customerDAO.search(custId);
 
                     JsonObjectBuilder searchCustomer = Json.createObjectBuilder();
-
                     if (customer != null) {
                         searchCustomer.add("status", 200);
                         searchCustomer.add("id", customer.getId());
@@ -58,12 +52,9 @@ public class CustomerServlet extends HttpServlet {
                         searchCustomer.add("status", 400);
                     }
                     writer.print(searchCustomer.build());
-
                     break;
                 case "GENERATECUSTID":
-
                     writer.print(customerDAO.generateId());
-
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -71,7 +62,6 @@ public class CustomerServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -87,7 +77,6 @@ public class CustomerServlet extends HttpServlet {
         resp.setContentType("application/json");
         try {
             boolean add = customerDAO.add(customer);
-
             if (add) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 resp.setStatus(HttpServletResponse.SC_CREATED);
@@ -131,12 +120,8 @@ public class CustomerServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
 
         resp.setContentType("application/json");
-
-
         try {
-
             boolean update = customerDAO.update(customer);
-
             if (update) {
                 JsonObjectBuilder response = Json.createObjectBuilder();
                 response.add("status", 200);
@@ -150,7 +135,6 @@ public class CustomerServlet extends HttpServlet {
                 response.add("data", "");
                 writer.print(response.build());
             }
-
         } catch (ClassNotFoundException e) {
             JsonObjectBuilder response = Json.createObjectBuilder();
             response.add("status", 500);
@@ -173,9 +157,7 @@ public class CustomerServlet extends HttpServlet {
         resp.setContentType("application/json");
 
         try {
-
             boolean delete = customerDAO.delete(cusID);
-
             if (delete) {
                 JsonObjectBuilder builder = Json.createObjectBuilder();
                 builder.add("status", 200);

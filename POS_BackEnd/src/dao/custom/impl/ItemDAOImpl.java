@@ -2,7 +2,6 @@ package dao.custom.impl;
 
 import dao.CrudUtil;
 import dao.custom.ItemDAO;
-import entity.Customer;
 import entity.Item;
 
 import javax.json.*;

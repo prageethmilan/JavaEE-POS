@@ -20,15 +20,15 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
     public JsonArray getAll() throws SQLException, ClassNotFoundException {
         ResultSet rst = CrudUtil.executeQuery("SELECT * FROM `Order Detail`");
         JsonArrayBuilder orderDetailsArray = Json.createArrayBuilder();
-        while (rst.next()){
-            OrderDetail orderDetail = new OrderDetail(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4),rst.getInt(5),rst.getDouble(6));
+        while (rst.next()) {
+            OrderDetail orderDetail = new OrderDetail(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4), rst.getInt(5), rst.getDouble(6));
             JsonObjectBuilder orderDetailObj = Json.createObjectBuilder();
-            orderDetailObj.add("orderId",orderDetail.getOrderId());
-            orderDetailObj.add("itemCode",orderDetail.getItemCode());
-            orderDetailObj.add("itemName",orderDetail.getItemName());
-            orderDetailObj.add("unitPrice",orderDetail.getUnitPrice());
-            orderDetailObj.add("qty",orderDetail.getBuyQty());
-            orderDetailObj.add("total",orderDetail.getTotal());
+            orderDetailObj.add("orderId", orderDetail.getOrderId());
+            orderDetailObj.add("itemCode", orderDetail.getItemCode());
+            orderDetailObj.add("itemName", orderDetail.getItemName());
+            orderDetailObj.add("unitPrice", orderDetail.getUnitPrice());
+            orderDetailObj.add("qty", orderDetail.getBuyQty());
+            orderDetailObj.add("total", orderDetail.getTotal());
             orderDetailsArray.add(orderDetailObj.build());
         }
         return orderDetailsArray.build();
@@ -56,17 +56,17 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
 
     @Override
     public JsonArray searchOrderDetails(String id) throws SQLException, ClassNotFoundException {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM `Order Detail` WHERE orderId=?",id);
+        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM `Order Detail` WHERE orderId=?", id);
         JsonArrayBuilder orderDetailArray = Json.createArrayBuilder();
         while (rst.next()) {
-            OrderDetail orderDetail = new OrderDetail(rst.getString(1),rst.getString(2),rst.getString(3),rst.getDouble(4),rst.getInt(5),rst.getDouble(6));
+            OrderDetail orderDetail = new OrderDetail(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4), rst.getInt(5), rst.getDouble(6));
             JsonObjectBuilder obj = Json.createObjectBuilder();
-            obj.add("orderId",orderDetail.getOrderId());
-            obj.add("itemCode",orderDetail.getOrderId());
-            obj.add("itemName",orderDetail.getOrderId());
-            obj.add("unitPrice",orderDetail.getOrderId());
-            obj.add("qty",orderDetail.getOrderId());
-            obj.add("total",orderDetail.getOrderId());
+            obj.add("orderId", orderDetail.getOrderId());
+            obj.add("itemCode", orderDetail.getOrderId());
+            obj.add("itemName", orderDetail.getOrderId());
+            obj.add("unitPrice", orderDetail.getOrderId());
+            obj.add("qty", orderDetail.getOrderId());
+            obj.add("total", orderDetail.getOrderId());
             orderDetailArray.add(obj.build());
         }
         return orderDetailArray.build();
