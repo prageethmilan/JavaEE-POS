@@ -281,10 +281,6 @@ $("#btnPlaceOrder").click(function () {
         data: JSON.stringify(order),
         success: function (res) {
             if (res.boolean==true){
-                for (let i = 0; i < cartTMDB.length; i++) {
-                    manageItemQtyOnHand(cartTMDB[i].getICode(), cartTMDB[i].getBuyQty());
-                    cartTMDB.splice(i, 1);
-                }
                 clearPlaceOrderForm();
                 loadCartItemsToTable();
                 loadOrderTable();
@@ -303,22 +299,6 @@ $("#btnPlaceOrder").click(function () {
     })
 
 });
-
-// Manage Item Quantity
-function manageItemQtyOnHand(itemCode, buyQty) {
-    var data = {
-        code: itemCode,
-        qty: buyQty
-    }
-    $.ajax({
-        url: "http://localhost:8080/spa/order",
-        method: "PUT",
-        data: JSON.stringify(data),
-        success: function (res) {
-            console.log("Updated");
-        }
-    })
-}
 
 // Load Order Table
 function loadOrderTable() {

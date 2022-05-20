@@ -110,6 +110,8 @@ public class OrderServlet extends HttpServlet {
             for (JsonValue object : orderDetails) {
                 OrderDetail orderDetail = new OrderDetail(orderId, object.asJsonObject().getString("itemCode"), object.asJsonObject().getString("itemName"), Double.parseDouble(object.asJsonObject().getString("unitPrice")), object.asJsonObject().getInt("buyQty"), object.asJsonObject().getInt("total"));
                 boolean orderDetailsAdd = orderDetailDAO.add(orderDetail);
+                boolean updated = itemDAO.updateQty(orderDetail.getBuyQty(), orderDetail.getItemCode());
+
                 if (!orderDetailsAdd) {
                     connection.rollback();
                     connection.setAutoCommit(true);
@@ -137,28 +139,7 @@ public class OrderServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonReader reader = Json.createReader(req.getReader());
-        JsonObject object = reader.readObject();
-        String itemCode = object.getString("code");
-        int qty = object.getInt("qty");
-        PrintWriter writer = resp.getWriter();
-        resp.setContentType("application/json");
-
-        try {
-
-            boolean updated = itemDAO.updateQty(qty, itemCode);
-
-            if (updated) {
-                JsonObjectBuilder builder = Json.createObjectBuilder();
-                builder.add("status", 200);
-                builder.add("message", "Updated");
-                writer.print(builder.build());
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        super.doPut(req, resp);
     }
 
     @Override
