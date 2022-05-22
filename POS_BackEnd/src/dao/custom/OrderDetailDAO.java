@@ -4,6 +4,7 @@ import dao.CrudDAO;
 import entity.OrderDetail;
 
 import javax.json.JsonArray;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -11,5 +12,5 @@ import java.sql.SQLException;
  * @created : 19/05/2022 - 10:13 AM
  **/
 public interface OrderDetailDAO extends CrudDAO<OrderDetail, String> {
-    JsonArray searchOrderDetails(String id) throws SQLException, ClassNotFoundException;
+    JsonArray searchOrderDetails(Connection connection,String id) throws SQLException, ClassNotFoundException;
 }

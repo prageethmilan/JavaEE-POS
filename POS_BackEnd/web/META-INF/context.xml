@@ -6,7 +6,7 @@
             driverClassName="com.mysql.cj.jdbc.Driver"
             url="jdbc:mysql://localhost:3306/JavaEEPOS"
             username="root"
-            password="1234"
+            password="root1234"
             maxTotal="5"
             initialSize="5"
     ></Resource>

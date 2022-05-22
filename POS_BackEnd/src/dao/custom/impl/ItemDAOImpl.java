@@ -5,6 +5,7 @@ import dao.custom.ItemDAO;
 import entity.Item;
 
 import javax.json.*;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -14,8 +15,8 @@ import java.sql.SQLException;
  **/
 public class ItemDAOImpl implements ItemDAO {
     @Override
-    public JsonArray getAll() throws SQLException, ClassNotFoundException {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Item");
+    public JsonArray getAll(Connection connection) throws SQLException, ClassNotFoundException {
+        ResultSet rst = CrudUtil.executeQuery(connection, "SELECT * FROM Item");
         JsonArrayBuilder itemArray = Json.createArrayBuilder();
 
         while (rst.next()) {
@@ -31,23 +32,23 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public boolean add(Item item) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("INSERT INTO Item VALUES (?,?,?,?)", item.getCode(), item.getName(), item.getUnitPrice(), item.getQty());
+    public boolean add(Connection connection, Item item) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection, "INSERT INTO Item VALUES (?,?,?,?)", item.getCode(), item.getName(), item.getUnitPrice(), item.getQty());
     }
 
     @Override
-    public boolean update(Item item) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?", item.getName(), item.getUnitPrice(), item.getQty(), item.getCode());
+    public boolean update(Connection connection, Item item) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection, "UPDATE Item SET name=?,unitPrice=?,qtyOnHand=? WHERE code=?", item.getName(), item.getUnitPrice(), item.getQty(), item.getCode());
     }
 
     @Override
-    public boolean delete(String code) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("DELETE FROM Item WHERE code=?", code);
+    public boolean delete(Connection connection, String code) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection,"DELETE FROM Item WHERE code=?", code);
     }
 
     @Override
-    public Item search(String code) throws SQLException, ClassNotFoundException {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Item WHERE code=?", code);
+    public Item search(Connection connection, String code) throws SQLException, ClassNotFoundException {
+        ResultSet rst = CrudUtil.executeQuery(connection, "SELECT * FROM Item WHERE code=?", code);
         Item item = null;
         while (rst.next()) {
             item = new Item(rst.getString(1), rst.getString(2), rst.getDouble(3), rst.getInt(4));
@@ -56,8 +57,8 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public JsonObject generateCode() throws SQLException, ClassNotFoundException {
-        ResultSet codeSet = CrudUtil.executeQuery("SELECT code FROM Item ORDER BY code DESC LIMIT 1");
+    public JsonObject generateCode(Connection connection) throws SQLException, ClassNotFoundException {
+        ResultSet codeSet = CrudUtil.executeQuery(connection, "SELECT code FROM Item ORDER BY code DESC LIMIT 1");
         JsonObjectBuilder obj = Json.createObjectBuilder();
         if (codeSet.next()) {
             int tempCode = Integer.parseInt(codeSet.getString(1).split("-")[1]);
@@ -83,7 +84,7 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public boolean updateQty(int qty, String code) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("UPDATE Item SET qtyOnHand=(qtyOnHand-" + qty + ") WHERE code='" + code + "'");
+    public boolean updateQty(Connection connection, int qty, String code) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection, "UPDATE Item SET qtyOnHand=(qtyOnHand-" + qty + ") WHERE code='" + code + "'");
     }
 }

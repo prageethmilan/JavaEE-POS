@@ -5,6 +5,7 @@ import dao.custom.CustomerDAO;
 import entity.Customer;
 
 import javax.json.*;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -14,8 +15,8 @@ import java.sql.SQLException;
  **/
 public class CustomerDAOImpl implements CustomerDAO {
     @Override
-    public JsonArray getAll() throws SQLException, ClassNotFoundException {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Customer");
+    public JsonArray getAll(Connection connection) throws SQLException, ClassNotFoundException {
+        ResultSet rst = CrudUtil.executeQuery(connection, "SELECT * FROM Customer");
         JsonArrayBuilder customerArray = Json.createArrayBuilder();
         while (rst.next()) {
             Customer customer = new Customer(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4));
@@ -26,28 +27,27 @@ public class CustomerDAOImpl implements CustomerDAO {
             customerObj.add("salary", customer.getSalary());
             customerArray.add(customerObj.build());
         }
-
         return customerArray.build();
     }
 
     @Override
-    public boolean add(Customer customer) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("INSERT INTO Customer Values (?,?,?,?)", customer.getId(), customer.getName(), customer.getAddress(), customer.getSalary());
+    public boolean add(Connection connection, Customer customer) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection, "INSERT INTO Customer Values (?,?,?,?)", customer.getId(), customer.getName(), customer.getAddress(), customer.getSalary());
     }
 
     @Override
-    public boolean update(Customer customer) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("UPDATE Customer SET name=?,address=?,salary=? WHERE id=?", customer.getName(), customer.getAddress(), customer.getSalary(), customer.getId());
+    public boolean update(Connection connection, Customer customer) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection, "UPDATE Customer SET name=?,address=?,salary=? WHERE id=?", customer.getName(), customer.getAddress(), customer.getSalary(), customer.getId());
     }
 
     @Override
-    public boolean delete(String id) throws SQLException, ClassNotFoundException {
-        return CrudUtil.executeUpdate("DELETE FROM Customer WHERE id=?", id);
+    public boolean delete(Connection connection, String id) throws SQLException, ClassNotFoundException {
+        return CrudUtil.executeUpdate(connection,"DELETE FROM Customer WHERE id=?", id);
     }
 
     @Override
-    public Customer search(String id) throws SQLException, ClassNotFoundException {
-        ResultSet rst = CrudUtil.executeQuery("SELECT * FROM Customer WHERE id=?", id);
+    public Customer search(Connection connection, String id) throws SQLException, ClassNotFoundException {
+        ResultSet rst = CrudUtil.executeQuery(connection,"SELECT * FROM Customer WHERE id=?", id);
         Customer customer = null;
         while (rst.next()) {
             customer = new Customer(rst.getString(1), rst.getString(2), rst.getString(3), rst.getDouble(4));
@@ -56,8 +56,8 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public JsonObject generateId() throws SQLException, ClassNotFoundException {
-        ResultSet idSet = CrudUtil.executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
+    public JsonObject generateId(Connection connection) throws SQLException, ClassNotFoundException {
+        ResultSet idSet = CrudUtil.executeQuery(connection, "SELECT id FROM Customer ORDER BY id DESC LIMIT 1");
         JsonObjectBuilder obj = Json.createObjectBuilder();
         if (idSet.next()) {
             int tempId = Integer.parseInt(idSet.getString(1).split("-")[1]);
